@@ -47,34 +47,34 @@ We trade automation theater for:
 
 ```
 ┌─────────────────────────────────────┐
-│  Frontend (Vite + React + shadcn)   │
-│  - TypeScript strict mode           │
-│  - Role-based routing               │
-│  - React Query for state            │
+│  Frontend (Vite + React + shadcn)          │
+│  - TypeScript strict mode                  │
+│  - Role-based routing                      │
+│  - React Query for state                   │
 └──────────────┬──────────────────────┘
-               │ REST / JSON
-               ▼
+                  │ REST / JSON
+                  ▼
 ┌─────────────────────────────────────┐
-│  Backend (FastAPI)                  │
-│  - Async SQLAlchemy 2.0             │
-│  - Pydantic v2 validation           │
-│  - JWT auth via Neon                │
+│  Backend (FastAPI)                         │
+│  - Async SQLAlchemy 2.0                    │
+│  - Pydantic v2 validation                  │
+│  - JWT auth via Neon                       │
 └──────────────┬──────────────────────┘
-               │
-               ▼
+                  │
+                  ▼
 ┌─────────────────────────────────────┐
-│  Neon PostgreSQL                    │
-│  - Built-in auth                    │
-│  - Row-level security               │
-│  - Automated backups                │
+│  Neon PostgreSQL                           │
+│  - Built-in auth                           │
+│  - Row-level security                      │
+│  - Automated backups                       │
 └─────────────────────────────────────┘
-               │
-               ▼
+                  │
+                  ▼
 ┌─────────────────────────────────────┐
-│  Object Storage (S3-compatible)     │
-│  - Evidence file storage            │
-│  - Audit export packages            │
-│  - Version metadata in DB           │
+│  Object Storage (S3-compatible)            │
+│  - Evidence file storage                   │
+│  - Audit export packages                   │
+│  - Version metadata in DB                  │
 └─────────────────────────────────────┘
 ```
 
