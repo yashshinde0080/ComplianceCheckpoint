@@ -47,34 +47,34 @@ We trade automation theater for:
 
 ```
 ┌─────────────────────────────────────┐
-│  Frontend (Vite + React + shadcn)          │
-│  - TypeScript strict mode                  │
-│  - Role-based routing                      │
-│  - React Query for state                   │
+│  Frontend (Vite + React + shadcn)   │
+│  - TypeScript strict mode           │
+│  - Role-based routing               │
+│  - React Query for state            │
 └──────────────┬──────────────────────┘
                   │ REST / JSON
                   ▼
 ┌─────────────────────────────────────┐
-│  Backend (FastAPI)                         │
-│  - Async SQLAlchemy 2.0                    │
-│  - Pydantic v2 validation                  │
-│  - JWT auth via Neon                       │
+│  Backend (FastAPI)                  │
+│  - Async SQLAlchemy 2.0             │
+│  - Pydantic v2 validation           │
+│  - JWT auth via Neon                │
 └──────────────┬──────────────────────┘
                   │
                   ▼
 ┌─────────────────────────────────────┐
-│  Neon PostgreSQL                           │
-│  - Built-in auth                           │
-│  - Row-level security                      │
-│  - Automated backups                       │
+│  Neon PostgreSQL                    │
+│  - Built-in auth                    │
+│  - Row-level security               │
+│  - Automated backups                │
 └─────────────────────────────────────┘
                   │
                   ▼
 ┌─────────────────────────────────────┐
-│  Object Storage (S3-compatible)            │
-│  - Evidence file storage                   │
-│  - Audit export packages                   │
-│  - Version metadata in DB                  │
+│  Object Storage (S3-compatible)     │
+│  - Evidence file storage            │
+│  - Audit export packages            │
+│  - Version metadata in DB           │
 └─────────────────────────────────────┘
 ```
 
@@ -672,4 +672,3 @@ This exists because compliance tooling sucks. We're trying to fix that by being:
 
 If you're building this, you're probably technical, frustrated with existing tools, and willing to do hard research work. Good. That's who this is for.
 
-**No pep talk. Just execution.**
