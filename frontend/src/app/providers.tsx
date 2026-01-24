@@ -1,6 +1,5 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { api } from '@/lib/api'
+import { createContext, useContext, ReactNode, useState, useEffect } from 'react'
+import { api, authApi } from '@/lib/api'
 
 interface User {
   id: number
@@ -30,39 +29,52 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token'))
+  const [token, setToken] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const navigate = useNavigate()
 
+  // Check for existing session on mount
   useEffect(() => {
     const initAuth = async () => {
-      if (token) {
+      const storedToken = localStorage.getItem('token')
+      if (storedToken) {
+        setToken(storedToken)
         try {
-          const response = await api.get('/auth/me')
+          // Verify token and get user info
+          const response = await authApi.me()
           setUser(response.data)
-        } catch {
+        } catch (error) {
+          // Token is invalid, clean up
+          console.error('Token validation failed:', error)
           localStorage.removeItem('token')
           setToken(null)
         }
       }
       setIsLoading(false)
     }
+
     initAuth()
-  }, [token])
+  }, [])
 
   const login = async (email: string, password: string) => {
-    const response = await api.post('/auth/login', { email, password })
+    const response = await authApi.login(email, password)
     const { access_token } = response.data
+
+    // Store token
     localStorage.setItem('token', access_token)
     setToken(access_token)
-    
-    const userResponse = await api.get('/auth/me')
+
+    // Get user info
+    const userResponse = await api.get('/auth/me', {
+      headers: { Authorization: `Bearer ${access_token}` }
+    })
     setUser(userResponse.data)
-    navigate('/dashboard')
   }
 
   const register = async (data: RegisterData) => {
+    // Register user
     await api.post('/auth/register', data)
+    
+    // Auto-login after registration
     await login(data.email, data.password)
   }
 
@@ -70,7 +82,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('token')
     setToken(null)
     setUser(null)
-    navigate('/login')
   }
 
   return (

@@ -1,68 +1,421 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
+@layer base {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    /* Light Theme - Proper visible colors */
+    --background: 220 14% 96%;
+    --foreground: 224 71% 4%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 224 71% 4%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71% 4%;
+
+    /* Professional Blue Primary */
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 20% 98%;
+
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 9% 46%;
+
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+
+    --accent: 220 14% 96%;
+    --accent-foreground: 224 71% 4%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Success color */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+
+    /* Warning color */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 0%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 221 83% 53%;
+
+    --radius: 0.625rem;
+
+    /* Chart colors */
+    --chart-1: 221 83% 53%;
+    --chart-2: 142 76% 36%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 0 84% 60%;
+    --chart-5: 262 83% 58%;
   }
-  a:hover {
-    color: #747bff;
+
+  .dark {
+    /* Dark Theme */
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+
+    --card: 224 71% 6%;
+    --card-foreground: 213 31% 91%;
+
+    --popover: 224 71% 6%;
+    --popover-foreground: 213 31% 91%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 224 71% 4%;
+
+    --secondary: 215 28% 17%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 215 28% 17%;
+    --muted-foreground: 217 10% 64%;
+
+    --accent: 215 28% 17%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+
+    --success: 142 70% 35%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 0%;
+
+    --border: 215 28% 17%;
+    --input: 215 28% 17%;
+    --ring: 224 77% 55%;
+
+    --chart-1: 217 91% 60%;
+    --chart-2: 142 70% 45%;
+    --chart-3: 38 92% 55%;
+    --chart-4: 0 72% 51%;
+    --chart-5: 262 83% 68%;
   }
-  button {
-    background-color: #f9f9f9;
+}
+
+@layer base {
+  * {
+    @apply border-border;
   }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    background-color: hsl(220 14% 96%);
+    color: hsl(224 71% 4%);
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(220 14% 96%);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(220 9% 70%);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(220 9% 60%);
+  }
+}
+
+@layer components {
+  /* Glass morphism card effect */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    background: linear-gradient(to right, hsl(221 83% 53%), hsl(221 83% 70%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Subtle hover effect */
+  .hover-lift {
+    @apply transition-all duration-200;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Status badge styles */
+  .status-success {
+    background-color: hsl(142 76% 90%);
+    color: hsl(142 76% 30%);
+  }
+
+  .status-warning {
+    background-color: hsl(38 92% 90%);
+    color: hsl(38 92% 30%);
+  }
+
+  .status-error {
+    background-color: hsl(0 84% 92%);
+    color: hsl(0 84% 40%);
+  }
+
+  .status-info {
+    background-color: hsl(221 83% 92%);
+    color: hsl(221 83% 40%);
+  }
+
+  /* Modern button with gradient */
+  .btn-gradient {
+    background: linear-gradient(135deg, hsl(221 83% 53%) 0%, hsl(221 83% 45%) 100%);
+    color: white;
+  }
+  
+  .btn-gradient:hover {
+    background: linear-gradient(135deg, hsl(221 83% 48%) 0%, hsl(221 83% 40%) 100%);
+  }
+
+  /* Sidebar styles */
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0.75rem;
+    border-radius: 0.5rem;
+    color: hsl(220 9% 46%);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .sidebar-link:hover {
+    background-color: hsl(220 14% 93%);
+    color: hsl(224 71% 4%);
+  }
+
+  .sidebar-link.active {
+    background: linear-gradient(135deg, hsl(221 83% 53%) 0%, hsl(221 83% 45%) 100%);
+    color: white;
+    box-shadow: 0 4px 12px -2px hsla(221, 83%, 53%, 0.4);
+  }
+
+  /* Card with subtle animation */
+  .animate-card {
+    @apply transition-all duration-300;
+  }
+  
+  .animate-card:hover {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    border-color: hsl(221 83% 80%);
+  }
+
+  /* Data table styles */
+  .data-table-row {
+    border-bottom: 1px solid hsl(220 13% 91%);
+    transition: background-color 0.15s;
+  }
+  
+  .data-table-row:hover {
+    background-color: hsl(220 14% 98%);
+  }
+
+  /* Progress bar styles */
+  .progress-bar {
+    height: 0.5rem;
+    border-radius: 9999px;
+    background-color: hsl(220 14% 90%);
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 9999px;
+    transition: all 0.5s ease-out;
+    background: linear-gradient(90deg, hsl(221 83% 53%) 0%, hsl(221 83% 65%) 100%);
+  }
+
+  /* Metric card */
+  .metric-card {
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    background: white;
+    border: 1px solid hsl(220 13% 91%);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    transition: all 0.2s;
+  }
+  
+  .metric-card:hover {
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.12);
+  }
+
+  /* Loading spinner */
+  .loading-spinner {
+    animation: spin 1s linear infinite;
+    border-radius: 9999px;
+    border: 4px solid hsl(221 83% 90%);
+    border-top-color: hsl(221 83% 53%);
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}
+
+@layer utilities {
+  /* Fade in animation */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Slide in from left */
+  .animate-slide-in-left {
+    animation: slideInLeft 0.3s ease-out forwards;
+  }
+
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* Pulse animation for notifications */
+  .animate-pulse-subtle {
+    animation: pulseSubtle 2s ease-in-out infinite;
+  }
+
+  @keyframes pulseSubtle {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+
+  /* Gradient backgrounds */
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, hsl(221 83% 53%) 0%, hsl(221 83% 45%) 100%);
+  }
+
+  .bg-gradient-subtle {
+    background: linear-gradient(135deg, hsl(220 14% 96%) 0%, hsl(220 14% 98%) 50%, hsl(220 20% 95%) 100%);
+  }
+
+  /* Text gradient */
+  .text-gradient-primary {
+    background: linear-gradient(to right, hsl(221 83% 53%), hsl(199 89% 48%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Shadow utilities */
+  .shadow-glow {
+    box-shadow: 0 0 20px -5px hsla(221, 83%, 53%, 0.3);
+  }
+
+  .shadow-glow-sm {
+    box-shadow: 0 0 10px -3px hsla(221, 83%, 53%, 0.2);
+  }
+}
+/* ========================================
+   Neon Auth UI Component Styling
+   Less aggressive to preserve functionality
+   ======================================== */
+
+/* Simple color variable overrides for auth components */
+:root {
+  --neon-auth-bg: #ffffff;
+  --neon-auth-text: #0f172a;
+  --neon-auth-muted: #64748b;
+  --neon-auth-border: #e2e8f0;
+  --neon-auth-primary: #3b82f6;
+  --neon-auth-input-bg: #f8fafc;
+}
+
+/* Style inputs without breaking functionality */
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+  border-radius: 0.5rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="text"]:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  outline: none;
+}
+
+input::placeholder {
+  color: #94a3b8;
+}
+
+/* Style submit buttons */
+button[type="submit"] {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+button[type="submit"]:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+}
+
+/* Ensure links are clickable and visible */
+a {
+  color: #3b82f6;
+  cursor: pointer;
+}
+
+a:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+/* Labels */
+label {
+  color: #374151;
+  font-weight: 500;
 }

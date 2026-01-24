@@ -10,7 +10,8 @@ import {
   TrendingUp,
   AlertCircle,
   Clock,
-  CheckCircle2
+  CheckCircle2,
+  ArrowRight
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useToast } from '@/hooks/use-toast'
@@ -56,31 +57,31 @@ export function DashboardPage() {
       title: 'Total Controls',
       value: stats?.total_controls || 0,
       icon: Shield,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100',
+      gradient: 'from-blue-500 to-blue-600',
+      bgGradient: 'from-blue-500/10 to-blue-600/5',
     },
     {
       title: 'Policies',
       value: `${stats?.approved_policies || 0}/${stats?.total_policies || 0}`,
       description: 'Approved',
       icon: FileText,
-      color: 'text-green-600',
-      bgColor: 'bg-green-100',
+      gradient: 'from-green-500 to-emerald-600',
+      bgGradient: 'from-green-500/10 to-emerald-600/5',
     },
     {
       title: 'Evidence Items',
       value: stats?.total_evidence || 0,
       icon: Upload,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100',
+      gradient: 'from-purple-500 to-violet-600',
+      bgGradient: 'from-purple-500/10 to-violet-600/5',
     },
     {
       title: 'Tasks',
       value: `${stats?.completed_tasks || 0}/${stats?.total_tasks || 0}`,
       description: 'Completed',
       icon: CheckSquare,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-100',
+      gradient: 'from-orange-500 to-amber-600',
+      bgGradient: 'from-orange-500/10 to-amber-600/5',
     },
   ]
 
@@ -97,7 +98,7 @@ export function DashboardPage() {
   if (statsLoading || controlsLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="loading-spinner h-10 w-10"></div>
       </div>
     )
   }
@@ -107,11 +108,11 @@ export function DashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-500">Your compliance readiness overview</p>
+          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground">Your compliance readiness overview</p>
         </div>
         {(!controls || controls.length === 0) && (
-          <Button onClick={handleSeedControls}>
+          <Button onClick={handleSeedControls} className="btn-gradient shadow-lg">
             <Shield className="mr-2 h-4 w-4" />
             Initialize Control Library
           </Button>
@@ -120,19 +121,19 @@ export function DashboardPage() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statCards.map((stat) => (
-          <Card key={stat.title}>
+        {statCards.map((stat, index) => (
+          <Card key={stat.title} className={`metric-card hover-lift animate-fade-in bg-gradient-to-br ${stat.bgGradient}`} style={{ animationDelay: `${index * 100}ms` }}>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">{stat.title}</p>
-                  <p className="text-3xl font-bold mt-1">{stat.value}</p>
+                  <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
+                  <p className="text-3xl font-bold mt-1 text-foreground">{stat.value}</p>
                   {stat.description && (
-                    <p className="text-xs text-gray-400 mt-1">{stat.description}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{stat.description}</p>
                   )}
                 </div>
-                <div className={`p-3 rounded-full ${stat.bgColor}`}>
-                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
+                <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.gradient} shadow-lg`}>
+                  <stat.icon className="h-6 w-6 text-white" />
                 </div>
               </div>
             </CardContent>
@@ -141,10 +142,12 @@ export function DashboardPage() {
       </div>
 
       {/* Progress Card */}
-      <Card>
+      <Card className="animate-card">
         <CardHeader>
           <CardTitle className="flex items-center">
-            <TrendingUp className="mr-2 h-5 w-5" />
+            <div className="p-2 rounded-lg bg-primary/10 mr-3">
+              <TrendingUp className="h-5 w-5 text-primary" />
+            </div>
             Overall Compliance Progress
           </CardTitle>
           <CardDescription>
@@ -154,14 +157,18 @@ export function DashboardPage() {
         <CardContent>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Completion</span>
-              <span className="text-sm font-bold">{completionPercentage}%</span>
+              <span className="text-sm font-medium text-muted-foreground">Completion</span>
+              <span className="text-lg font-bold text-foreground">{completionPercentage}%</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-4">
+            <div className="progress-bar h-3">
               <div
-                className="bg-primary h-4 rounded-full transition-all duration-500"
+                className="progress-bar-fill bg-gradient-to-r from-primary to-primary/70"
                 style={{ width: `${completionPercentage}%` }}
               />
+            </div>
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>0%</span>
+              <span>Target: 100%</span>
             </div>
           </div>
         </CardContent>
@@ -170,10 +177,12 @@ export function DashboardPage() {
       {/* Control Status Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Not Started */}
-        <Card>
+        <Card className="animate-card">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center">
-              <AlertCircle className="mr-2 h-5 w-5 text-gray-400" />
+              <div className="p-2 rounded-lg bg-muted mr-3">
+                <AlertCircle className="h-5 w-5 text-muted-foreground" />
+              </div>
               Not Started
             </CardTitle>
             <CardDescription>
@@ -186,26 +195,31 @@ export function DashboardPage() {
                 <Link
                   key={control.id}
                   to={`/controls/${control.id}`}
-                  className="block p-2 rounded hover:bg-gray-50 text-sm"
+                  className="block p-3 rounded-lg hover:bg-muted/50 text-sm transition-colors group"
                 >
-                  <span className="font-medium text-gray-700">{control.control_code}</span>
-                  <span className="text-gray-500 ml-2 truncate">{control.title}</span>
+                  <span className="font-medium text-foreground group-hover:text-primary transition-colors">{control.control_code}</span>
+                  <span className="text-muted-foreground ml-2 truncate">{control.title}</span>
                 </Link>
               ))}
               {(controlsByStatus['Not Started']?.length || 0) > 5 && (
-                <Link to="/controls" className="block text-sm text-primary hover:underline mt-2">
-                  View all →
+                <Link to="/controls" className="flex items-center gap-1 text-sm text-primary hover:underline mt-2 font-medium">
+                  View all <ArrowRight className="h-3 w-3" />
                 </Link>
+              )}
+              {(controlsByStatus['Not Started']?.length || 0) === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-4">No controls in this status</p>
               )}
             </div>
           </CardContent>
         </Card>
 
         {/* In Progress */}
-        <Card>
+        <Card className="animate-card">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center">
-              <Clock className="mr-2 h-5 w-5 text-blue-500" />
+              <div className="p-2 rounded-lg bg-blue-500/10 mr-3">
+                <Clock className="h-5 w-5 text-blue-500" />
+              </div>
               In Progress
             </CardTitle>
             <CardDescription>
@@ -218,26 +232,31 @@ export function DashboardPage() {
                 <Link
                   key={control.id}
                   to={`/controls/${control.id}`}
-                  className="block p-2 rounded hover:bg-gray-50 text-sm"
+                  className="block p-3 rounded-lg hover:bg-muted/50 text-sm transition-colors group"
                 >
-                  <span className="font-medium text-gray-700">{control.control_code}</span>
-                  <span className="text-gray-500 ml-2 truncate">{control.title}</span>
+                  <span className="font-medium text-foreground group-hover:text-primary transition-colors">{control.control_code}</span>
+                  <span className="text-muted-foreground ml-2 truncate">{control.title}</span>
                 </Link>
               ))}
               {(controlsByStatus['In Progress']?.length || 0) > 5 && (
-                <Link to="/controls" className="block text-sm text-primary hover:underline mt-2">
-                  View all →
+                <Link to="/controls" className="flex items-center gap-1 text-sm text-primary hover:underline mt-2 font-medium">
+                  View all <ArrowRight className="h-3 w-3" />
                 </Link>
+              )}
+              {(controlsByStatus['In Progress']?.length || 0) === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-4">No controls in this status</p>
               )}
             </div>
           </CardContent>
         </Card>
 
         {/* Completed */}
-        <Card>
+        <Card className="animate-card">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center">
-              <CheckCircle2 className="mr-2 h-5 w-5 text-green-500" />
+              <div className="p-2 rounded-lg bg-green-500/10 mr-3">
+                <CheckCircle2 className="h-5 w-5 text-green-500" />
+              </div>
               Completed
             </CardTitle>
             <CardDescription>
@@ -250,16 +269,19 @@ export function DashboardPage() {
                 <Link
                   key={control.id}
                   to={`/controls/${control.id}`}
-                  className="block p-2 rounded hover:bg-gray-50 text-sm"
+                  className="block p-3 rounded-lg hover:bg-muted/50 text-sm transition-colors group"
                 >
-                  <span className="font-medium text-gray-700">{control.control_code}</span>
-                  <span className="text-gray-500 ml-2 truncate">{control.title}</span>
+                  <span className="font-medium text-foreground group-hover:text-primary transition-colors">{control.control_code}</span>
+                  <span className="text-muted-foreground ml-2 truncate">{control.title}</span>
                 </Link>
               ))}
               {(controlsByStatus['Completed']?.length || 0) > 5 && (
-                <Link to="/controls" className="block text-sm text-primary hover:underline mt-2">
-                  View all →
+                <Link to="/controls" className="flex items-center gap-1 text-sm text-primary hover:underline mt-2 font-medium">
+                  View all <ArrowRight className="h-3 w-3" />
                 </Link>
+              )}
+              {(controlsByStatus['Completed']?.length || 0) === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-4">No controls in this status</p>
               )}
             </div>
           </CardContent>
@@ -267,31 +289,32 @@ export function DashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <Card>
+      <Card className="animate-card">
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
+          <CardDescription>Common tasks to manage your compliance</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-4">
-            <Button asChild>
+            <Button asChild className="btn-gradient shadow-md hover-lift">
               <Link to="/policies">
                 <FileText className="mr-2 h-4 w-4" />
                 Generate Policy
               </Link>
             </Button>
-            <Button variant="outline" asChild>
+            <Button variant="outline" asChild className="hover-lift">
               <Link to="/evidence">
                 <Upload className="mr-2 h-4 w-4" />
                 Upload Evidence
               </Link>
             </Button>
-            <Button variant="outline" asChild>
+            <Button variant="outline" asChild className="hover-lift">
               <Link to="/tasks">
                 <CheckSquare className="mr-2 h-4 w-4" />
                 View Tasks
               </Link>
             </Button>
-            <Button variant="outline" asChild>
+            <Button variant="outline" asChild className="hover-lift">
               <Link to="/audit">
                 <TrendingUp className="mr-2 h-4 w-4" />
                 Export Audit Report
