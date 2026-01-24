@@ -9,7 +9,6 @@ python-jose[cryptography]
 passlib[bcrypt]
 python-multipart
 markdown
-boto3
 aiofiles
 python-dotenv
 httpx

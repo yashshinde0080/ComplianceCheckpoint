@@ -1,19 +1,17 @@
 from pydantic_settings import BaseSettings
-from typing import Optional
 
 
 class Settings(BaseSettings):
+    # Required
     DATABASE_URL: str
     SECRET_KEY: str
+    FRONTEND_URL: str = "http://localhost:5173"
+    
+    # JWT Settings
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
     
-    AWS_ACCESS_KEY_ID: Optional[str] = None
-    AWS_SECRET_ACCESS_KEY: Optional[str] = None
-    AWS_BUCKET_NAME: Optional[str] = None
-    AWS_REGION: str = "us-east-1"
-    
-    FRONTEND_URL: str = "http://localhost:5173"
+    # REMOVED: All AWS settings - not needed
     
     class Config:
         env_file = ".env"
