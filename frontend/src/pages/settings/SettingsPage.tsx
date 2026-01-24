@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { organizationApi } from '@/lib/api'
 import { useAuth } from '@/app/providers'
@@ -37,6 +37,13 @@ const COMPLIANCE_FRAMEWORKS = [
   { value: 'PCI DSS', label: 'PCI DSS' },
 ]
 
+interface Organization {
+  name: string
+  industry?: string
+  employee_count?: number
+  compliance_targets?: string[]
+}
+
 export function SettingsPage() {
   const { user } = useAuth()
   const { toast } = useToast()
@@ -45,12 +52,9 @@ export function SettingsPage() {
 
   const { data: organization, isLoading } = useQuery({
     queryKey: ['organization'],
-    queryFn: async () => {
+    queryFn: async (): Promise<Organization> => {
       const response = await organizationApi.get()
       return response.data
-    },
-    onSuccess: (data) => {
-      setSelectedFrameworks(data.compliance_targets || [])
     },
   })
 
@@ -63,15 +67,16 @@ export function SettingsPage() {
   })
 
   // Set form values when organization data loads
-  useState(() => {
+  useEffect(() => {
     if (organization) {
       form.reset({
         name: organization.name,
         industry: organization.industry || '',
         employee_count: organization.employee_count?.toString() || '',
       })
+      setSelectedFrameworks(organization.compliance_targets || [])
     }
-  })
+  }, [organization, form])
 
   const updateMutation = useMutation({
     mutationFn: async (data: any) => {

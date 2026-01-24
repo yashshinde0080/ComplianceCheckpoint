@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { tasksApi, controlsApi } from '@/lib/api'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -26,12 +26,11 @@ import {
 import { 
   Plus, 
   CheckSquare, 
-  Clock, 
   Search,
   Trash2,
   Calendar
 } from 'lucide-react'
-import { cn, getStatusColor, getPriorityColor, formatDate } from '@/lib/utils'
+import { cn, getPriorityColor, formatDate } from '@/lib/utils'
 import { useToast } from '@/hooks/use-toast'
 import { useForm } from 'react-hook-form'
 

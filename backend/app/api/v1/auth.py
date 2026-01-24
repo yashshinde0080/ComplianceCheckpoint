@@ -41,9 +41,10 @@ async def register(
         org_id = new_org.id
     
     # Create user
+    hashed = get_password_hash(user_data.password)
     new_user = User(
         email=user_data.email,
-        hashed_password=get_password_hash(user_data.password),
+        hashed_password=hashed,
         full_name=user_data.full_name,
         role=user_data.role,
         organization_id=org_id

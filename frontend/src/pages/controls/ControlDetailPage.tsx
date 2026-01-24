@@ -32,8 +32,7 @@ import {
   FileText, 
   CheckCircle, 
   XCircle,
-  Clock,
-  Trash2
+  Clock
 } from 'lucide-react'
 import { cn, getStatusColor, getSeverityColor, formatDate, formatDateTime } from '@/lib/utils'
 import { useToast } from '@/hooks/use-toast'

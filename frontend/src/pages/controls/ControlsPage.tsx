@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { controlsApi } from '@/lib/api'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { 
@@ -13,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Search, Filter, ChevronRight, FileText, Upload } from 'lucide-react'
+import { Search, ChevronRight, FileText, Upload } from 'lucide-react'
 import { cn, getStatusColor, getSeverityColor } from '@/lib/utils'
 
 export function ControlsPage() {

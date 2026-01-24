@@ -6,9 +6,10 @@ alembic
 pydantic
 pydantic-settings
 python-jose[cryptography]
-passlib[bcrypt]
+passlib[argon2]
 python-multipart
 markdown
 aiofiles
 python-dotenv
 httpx
+email-validator

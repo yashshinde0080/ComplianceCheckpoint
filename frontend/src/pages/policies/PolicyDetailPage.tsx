@@ -1,12 +1,11 @@
 import { useState } from 'react'
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { policiesApi } from '@/lib/api'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
@@ -21,7 +20,6 @@ import { useToast } from '@/hooks/use-toast'
 
 export function PolicyDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
   const { toast } = useToast()
   const queryClient = useQueryClient()
   const [isEditing, setIsEditing] = useState(false)
