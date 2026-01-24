@@ -26,10 +26,10 @@ async def list_evidence(
     db: AsyncSession = Depends(get_db)
 ):
     query = select(Evidence).where(Evidence.organization_id == current_user.organization_id)
-    
+
     if control_id:
         query = query.where(Evidence.control_id == control_id)
-    
+
     result = await db.execute(query.order_by(Evidence.created_at.desc()))
     return result.scalars().all()
 
@@ -59,22 +59,22 @@ async def upload_evidence(
 ):
     # Read file content
     content = await file.read()
-    
+
     # Calculate file hash
     file_hash = hashlib.sha256(content).hexdigest()
-    
+
     # Generate unique filename
     timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
     safe_filename = f"{timestamp}_{file.filename}"
     file_path = os.path.join(UPLOAD_DIR, str(current_user.organization_id), safe_filename)
-    
+
     # Create directory if needed
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
-    
+
     # Save file
     async with aiofiles.open(file_path, 'wb') as f:
         await f.write(content)
-    
+
     # Check for existing version
     result = await db.execute(
         select(Evidence).where(
@@ -85,7 +85,7 @@ async def upload_evidence(
     )
     existing = result.scalar_one_or_none()
     new_version = (existing.version + 1) if existing else 1
-    
+
     # Create evidence record
     new_evidence = Evidence(
         control_id=control_id,
@@ -103,7 +103,7 @@ async def upload_evidence(
     db.add(new_evidence)
     await db.commit()
     await db.refresh(new_evidence)
-    
+
     return new_evidence
 
 
@@ -121,20 +121,20 @@ async def update_evidence(
         )
     )
     evidence = result.scalar_one_or_none()
-    
+
     if not evidence:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Evidence not found"
         )
-    
+
     update_dict = update_data.model_dump(exclude_unset=True)
     for field, value in update_dict.items():
         setattr(evidence, field, value)
-    
+
     await db.commit()
     await db.refresh(evidence)
-    
+
     return evidence
 
 
@@ -147,10 +147,10 @@ async def update_evidence_status(
 ):
     if status not in ["Pending", "Accepted", "Rejected"]:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=400,
             detail="Invalid status"
         )
-    
+
     result = await db.execute(
         select(Evidence).where(
             Evidence.id == evidence_id,
@@ -158,17 +158,17 @@ async def update_evidence_status(
         )
     )
     evidence = result.scalar_one_or_none()
-    
+
     if not evidence:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=404,
             detail="Evidence not found"
         )
-    
-    evidence.status = status
+
+    evidence.status = status  # type: ignore
     await db.commit()
     await db.refresh(evidence)
-    
+
     return evidence
 
 
@@ -185,18 +185,18 @@ async def delete_evidence(
         )
     )
     evidence = result.scalar_one_or_none()
-    
+
     if not evidence:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Evidence not found"
         )
-    
+
     # Delete file
     if os.path.exists(evidence.file_url):
         os.remove(evidence.file_url)
-    
+
     await db.delete(evidence)
     await db.commit()
-    
+
     return {"message": "Evidence deleted successfully"}

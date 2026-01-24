@@ -21,16 +21,16 @@ async def list_tasks(
     db: AsyncSession = Depends(get_db)
 ):
     query = select(Task).where(Task.organization_id == current_user.organization_id)
-    
+
     if status_filter:
         query = query.where(Task.status == status_filter)
-    
+
     if control_id:
         query = query.where(Task.control_id == control_id)
-    
+
     if owner_id:
         query = query.where(Task.owner_id == owner_id)
-    
+
     result = await db.execute(query.order_by(Task.due_date.asc().nullslast(), Task.created_at.desc()))
     return result.scalars().all()
 
@@ -61,13 +61,13 @@ async def get_task(
         )
     )
     task = result.scalar_one_or_none()
-    
+
     if not task:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Task not found"
         )
-    
+
     return task
 
 
@@ -90,7 +90,7 @@ async def create_task(
     db.add(new_task)
     await db.commit()
     await db.refresh(new_task)
-    
+
     return new_task
 
 
@@ -108,20 +108,20 @@ async def update_task(
         )
     )
     task = result.scalar_one_or_none()
-    
+
     if not task:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Task not found"
         )
-    
+
     update_dict = update_data.model_dump(exclude_unset=True)
     for field, value in update_dict.items():
         setattr(task, field, value)
-    
+
     await db.commit()
     await db.refresh(task)
-    
+
     return task
 
 
@@ -138,14 +138,14 @@ async def delete_task(
         )
     )
     task = result.scalar_one_or_none()
-    
+
     if not task:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Task not found"
         )
-    
+
     await db.delete(task)
     await db.commit()
-    
+
     return {"message": "Task deleted successfully"}

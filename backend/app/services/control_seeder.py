@@ -1,3 +1,4 @@
+# pylint: disable=line-too-long
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.db.models.framework import Framework
@@ -6,34 +7,34 @@ from app.db.models.control import Control
 
 async def seed_controls(db: AsyncSession):
     """Seed the database with compliance frameworks and controls."""
-    
+
     # Check if already seeded
     result = await db.execute(select(Framework))
     if result.scalars().first():
         return  # Already seeded
-    
+
     # Create frameworks
     soc2 = Framework(
         name="SOC 2",
         version="2017",
         description="Service Organization Control 2 - Trust Services Criteria"
     )
-    
+
     iso27001 = Framework(
         name="ISO 27001",
         version="2022",
         description="Information Security Management System Standard"
     )
-    
+
     gdpr = Framework(
         name="GDPR",
         version="2018",
         description="General Data Protection Regulation"
     )
-    
+
     db.add_all([soc2, iso27001, gdpr])
     await db.flush()
-    
+
     # SOC 2 Controls
     soc2_controls = [
         # CC1 - Control Environment
@@ -87,7 +88,7 @@ async def seed_controls(db: AsyncSession):
             guidance_text="Define performance metrics, conduct reviews, enforce accountability.",
             evidence_guidance="Provide: Performance metrics, review documentation, disciplinary procedures."
         ),
-        
+
         # CC2 - Communication and Information
         Control(
             framework_id=soc2.id,
@@ -119,7 +120,7 @@ async def seed_controls(db: AsyncSession):
             guidance_text="Establish external communication procedures and disclosure policies.",
             evidence_guidance="Provide: External communication policies, disclosure procedures, stakeholder communications."
         ),
-        
+
         # CC3 - Risk Assessment
         Control(
             framework_id=soc2.id,
@@ -161,7 +162,7 @@ async def seed_controls(db: AsyncSession):
             guidance_text="Monitor for internal and external changes that impact controls.",
             evidence_guidance="Provide: Change management procedures, impact assessments, change logs."
         ),
-        
+
         # CC4 - Monitoring Activities
         Control(
             framework_id=soc2.id,
@@ -183,7 +184,7 @@ async def seed_controls(db: AsyncSession):
             guidance_text="Establish deficiency tracking and escalation procedures.",
             evidence_guidance="Provide: Deficiency logs, remediation tracking, escalation records."
         ),
-        
+
         # CC5 - Control Activities
         Control(
             framework_id=soc2.id,
@@ -215,7 +216,7 @@ async def seed_controls(db: AsyncSession):
             guidance_text="Document and deploy policies and procedures for all controls.",
             evidence_guidance="Provide: Policies, procedures, deployment records, acknowledgments."
         ),
-        
+
         # CC6 - Logical and Physical Access
         Control(
             framework_id=soc2.id,
@@ -297,7 +298,7 @@ async def seed_controls(db: AsyncSession):
             guidance_text="Implement threat detection, monitoring, and response capabilities.",
             evidence_guidance="Provide: Security monitoring configurations, SIEM evidence, threat detection logs."
         ),
-        
+
         # CC7 - System Operations
         Control(
             framework_id=soc2.id,
@@ -349,7 +350,7 @@ async def seed_controls(db: AsyncSession):
             guidance_text="Implement recovery procedures and business continuity capabilities.",
             evidence_guidance="Provide: Recovery procedures, BCP documentation, recovery test results."
         ),
-        
+
         # CC8 - Change Management
         Control(
             framework_id=soc2.id,
@@ -361,7 +362,7 @@ async def seed_controls(db: AsyncSession):
             guidance_text="Implement formal change management process with appropriate controls.",
             evidence_guidance="Provide: Change management policy, change records, CAB meeting minutes, test evidence."
         ),
-        
+
         # CC9 - Risk Mitigation
         Control(
             framework_id=soc2.id,
@@ -384,7 +385,7 @@ async def seed_controls(db: AsyncSession):
             evidence_guidance="Provide: Vendor policy, risk assessments, contracts, monitoring records."
         ),
     ]
-    
+
     # ISO 27001 Controls (Annex A - Selected)
     iso27001_controls = [
         Control(
@@ -708,7 +709,7 @@ async def seed_controls(db: AsyncSession):
             evidence_guidance="Provide: Review schedule, audit reports, remediation tracking."
         ),
     ]
-    
+
     # GDPR Controls
     gdpr_controls = [
         Control(
@@ -892,7 +893,7 @@ async def seed_controls(db: AsyncSession):
             evidence_guidance="Provide: Transfer assessment, SCCs, adequacy decisions, transfer records."
         ),
     ]
-    
+
     db.add_all(soc2_controls)
     db.add_all(iso27001_controls)
     db.add_all(gdpr_controls)

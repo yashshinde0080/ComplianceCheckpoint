@@ -21,18 +21,18 @@ async def get_my_organization(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No organization found"
         )
-    
+
     result = await db.execute(
         select(Organization).where(Organization.id == current_user.organization_id)
     )
     org = result.scalar_one_or_none()
-    
+
     if not org:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Organization not found"
         )
-    
+
     return org
 
 
@@ -47,25 +47,25 @@ async def update_my_organization(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No organization found"
         )
-    
+
     result = await db.execute(
         select(Organization).where(Organization.id == current_user.organization_id)
     )
     org = result.scalar_one_or_none()
-    
+
     if not org:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Organization not found"
         )
-    
+
     update_dict = update_data.model_dump(exclude_unset=True)
     for field, value in update_dict.items():
         setattr(org, field, value)
-    
+
     await db.commit()
     await db.refresh(org)
-    
+
     return org
 
 
@@ -78,34 +78,34 @@ async def get_organization_stats(
     from app.db.models.policy import Policy
     from app.db.models.evidence import Evidence
     from app.db.models.task import Task
-    
+
     org_id = current_user.organization_id
-    
+
     # Count policies
     policies_result = await db.execute(
         select(Policy).where(Policy.organization_id == org_id)
     )
     policies = policies_result.scalars().all()
-    
+
     # Count evidence
     evidence_result = await db.execute(
         select(Evidence).where(Evidence.organization_id == org_id)
     )
     evidence = evidence_result.scalars().all()
-    
+
     # Count tasks
     tasks_result = await db.execute(
         select(Task).where(Task.organization_id == org_id)
     )
     tasks = tasks_result.scalars().all()
-    
+
     # Count controls
     controls_result = await db.execute(select(Control))
     controls = controls_result.scalars().all()
-    
+
     pending_tasks = len([t for t in tasks if t.status == "Pending"])
     completed_tasks = len([t for t in tasks if t.status == "Completed"])
-    
+
     return {
         "total_controls": len(controls),
         "total_policies": len(policies),

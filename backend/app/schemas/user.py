@@ -19,7 +19,7 @@ class UserRead(UserBase):
     is_active: bool
     organization_id: Optional[int]
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 

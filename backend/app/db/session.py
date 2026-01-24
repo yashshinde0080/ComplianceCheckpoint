@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from app.core.config import settings
+import ssl
 
 # Handle async driver and sslmode
 from sqlalchemy.engine.url import make_url
@@ -11,6 +12,16 @@ url_obj = make_url(db_url)
 if url_obj.drivername == "postgresql":
     url_obj = url_obj.set(drivername="postgresql+asyncpg")
 
+# Handle SSL for Neon/Cloud Postgres
+connect_args = {}
+if url_obj.query.get("sslmode") == "require":
+    # Create SSL context that allows self-signed or cloud certs
+    # This is often necessary for Neon/Heroku/etc when using asyncpg
+    ssl_context = ssl.create_default_context()
+    ssl_context.check_hostname = False
+    ssl_context.verify_mode = ssl.CERT_NONE
+    connect_args["ssl"] = ssl_context
+
 # Remove sslmode and channel_binding from query as asyncpg doesn't support them in options
 query = dict(url_obj.query)
 query.pop("sslmode", None)
@@ -20,7 +31,8 @@ url_obj = url_obj.set(query=query)
 engine = create_async_engine(
     url_obj,
     echo=True,
-    future=True
+    future=True,
+    connect_args=connect_args
 )
 
 async_session_maker = async_sessionmaker(

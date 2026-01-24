@@ -66,6 +66,8 @@ export function SettingsPage() {
     },
   })
 
+  const watchedIndustry = form.watch('industry');
+
   // Set form values when organization data loads
   useEffect(() => {
     if (organization) {
@@ -188,7 +190,7 @@ export function SettingsPage() {
               <div className="space-y-2">
                 <Label htmlFor="industry">Industry</Label>
                 <Select
-                  value={form.watch('industry') || organization?.industry}
+                  value={watchedIndustry || organization?.industry}
                   onValueChange={(value) => form.setValue('industry', value)}
                 >
                   <SelectTrigger>
