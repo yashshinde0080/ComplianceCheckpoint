@@ -1,3 +1,4 @@
+# pylint: disable=duplicate-code
 from typing import Tuple
 from datetime import datetime
 
@@ -62,7 +63,7 @@ This policy shall be reviewed annually and updated as needed.
 *Owner: Security Team*
 """
     },
-    
+
     "access_control": {
         "title": "Access Control Policy",
         "content": """# Access Control Policy
@@ -129,7 +130,7 @@ This policy applies to all systems, applications, and data owned or managed by {
 *Owner: IT Security*
 """
     },
-    
+
     "incident_response": {
         "title": "Incident Response Policy",
         "content": """# Incident Response Policy
@@ -207,7 +208,7 @@ All incidents shall be documented including:
 *Owner: Security Team*
 """
     },
-    
+
     "data_protection": {
         "title": "Data Protection Policy",
         "content": """# Data Protection Policy
@@ -301,7 +302,7 @@ All new systems and processes must incorporate:
 *Owner: Data Protection Officer*
 """
     },
-    
+
     "acceptable_use": {
         "title": "Acceptable Use Policy",
         "content": """# Acceptable Use Policy
@@ -392,7 +393,7 @@ Violations may result in:
 *Owner: IT Department*
 """
     },
-    
+
     "business_continuity": {
         "title": "Business Continuity Policy",
         "content": """# Business Continuity Policy
@@ -477,7 +478,7 @@ Business Continuity Plans shall include:
 *Owner: Business Continuity Team*
 """
     },
-    
+
     "vendor_management": {
         "title": "Vendor Management Policy",
         "content": """# Vendor Management Policy
@@ -576,7 +577,7 @@ When vendor relationships end:
 *Owner: Procurement/Security*
 """
     },
-    
+
     "change_management": {
         "title": "Change Management Policy",
         "content": """# Change Management Policy
@@ -687,7 +688,7 @@ All changes must be documented in the change management system including:
 *Owner: IT Operations*
 """
     },
-    
+
     "encryption": {
         "title": "Encryption Policy",
         "content": """# Encryption Policy
@@ -804,16 +805,16 @@ Any exceptions require:
 def generate_policy_content(policy_type: str, company_name: str) -> Tuple[str, str]:
     """
     Generate policy content based on policy type and company name.
-    
+
     Args:
         policy_type: Type of policy to generate
         company_name: Name of the company to insert into template
-    
+
     Returns:
         Tuple of (title, content)
     """
     template = POLICY_TEMPLATES.get(policy_type)
-    
+
     if not template:
         # Default generic policy if type not found
         return (
@@ -849,10 +850,10 @@ This policy shall be reviewed annually.
 *Version: 1.0*
 """
         )
-    
+
     content = template["content"].format(
         company_name=company_name,
         date=datetime.utcnow().strftime('%Y-%m-%d')
     )
-    
+
     return (template["title"], content)

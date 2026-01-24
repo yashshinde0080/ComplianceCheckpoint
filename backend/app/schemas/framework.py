@@ -16,6 +16,6 @@ class FrameworkCreate(FrameworkBase):
 class FrameworkRead(FrameworkBase):
     id: int
     created_at: datetime
-    
+
     class Config:
         from_attributes = True

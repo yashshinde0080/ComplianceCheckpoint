@@ -19,6 +19,6 @@ class AuditExportRead(AuditExportBase):
     status: str
     generated_at: Optional[datetime]
     created_at: datetime
-    
+
     class Config:
         from_attributes = True

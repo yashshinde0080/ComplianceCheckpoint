@@ -39,13 +39,13 @@ async def get_policy(
         )
     )
     policy = result.scalar_one_or_none()
-    
+
     if not policy:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Policy not found"
         )
-    
+
     return policy
 
 
@@ -65,7 +65,7 @@ async def create_policy(
     db.add(new_policy)
     await db.commit()
     await db.refresh(new_policy)
-    
+
     return new_policy
 
 
@@ -76,20 +76,20 @@ async def generate_policy(
     db: AsyncSession = Depends(get_db)
 ):
     from app.db.models.organization import Organization
-    
+
     # Get organization name
     org_result = await db.execute(
         select(Organization).where(Organization.id == current_user.organization_id)
     )
     org = org_result.scalar_one_or_none()
-    company_name = generate_data.company_name or (org.name if org else "Your Company")
-    
+    company_name = str(generate_data.company_name or (org.name if org else "Your Company"))
+
     # Generate policy content
     title, content = generate_policy_content(
         policy_type=generate_data.policy_type,
         company_name=company_name
     )
-    
+
     new_policy = Policy(
         organization_id=current_user.organization_id,
         framework_id=generate_data.framework_id,
@@ -100,7 +100,7 @@ async def generate_policy(
     db.add(new_policy)
     await db.commit()
     await db.refresh(new_policy)
-    
+
     return new_policy
 
 
@@ -118,25 +118,25 @@ async def update_policy(
         )
     )
     policy = result.scalar_one_or_none()
-    
+
     if not policy:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Policy not found"
         )
-    
+
     update_dict = update_data.model_dump(exclude_unset=True)
-    
+
     # Increment version if content changes
     if "content" in update_dict:
-        policy.version += 1
-    
+        policy.version += 1  # type: ignore
+
     for field, value in update_dict.items():
         setattr(policy, field, value)
-    
+
     await db.commit()
     await db.refresh(policy)
-    
+
     return policy
 
 
@@ -153,14 +153,14 @@ async def delete_policy(
         )
     )
     policy = result.scalar_one_or_none()
-    
+
     if not policy:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Policy not found"
         )
-    
+
     await db.delete(policy)
     await db.commit()
-    
+
     return {"message": "Policy deleted successfully"}

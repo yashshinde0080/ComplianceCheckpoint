@@ -1,17 +1,18 @@
 from sqlalchemy import Column, Integer, String, ARRAY, DateTime, func
 from sqlalchemy.orm import relationship
 from app.db.base import Base, TimestampMixin
+from typing import List
 
 
 class Organization(Base, TimestampMixin):
     __tablename__ = "organizations"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
     industry = Column(String(100), nullable=True)
     employee_count = Column(Integer, nullable=True)
-    compliance_targets = Column(ARRAY(String), default=[])
-    
+    compliance_targets: List[str] = Column(ARRAY(String), default=[]) # type: ignore
+
     # Relationships
     users = relationship("User", back_populates="organization")
     policies = relationship("Policy", back_populates="organization")

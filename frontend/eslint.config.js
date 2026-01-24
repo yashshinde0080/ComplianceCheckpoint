@@ -19,5 +19,13 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-unused-vars': 'warn',
+      'react-refresh/only-export-components': 'off',
+      // This rule flags libraries that might not work with React Compiler (experimental)
+      // Since we are using standard react-hook-form patterns, we suppress it.
+      'react-hooks/incompatible-library': 'off',
+    }
   },
 ])

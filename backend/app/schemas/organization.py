@@ -18,7 +18,7 @@ class OrganizationRead(OrganizationBase):
     id: int
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -28,4 +28,3 @@ class OrganizationUpdate(BaseModel):
     industry: Optional[str] = None
     employee_count: Optional[int] = None
     compliance_targets: Optional[List[str]] = None
-    

@@ -46,19 +46,19 @@ async def create_audit_export(
     db: AsyncSession = Depends(get_db)
 ):
     org_id = current_user.organization_id
-    
+
     # Get framework
     framework_result = await db.execute(
         select(Framework).where(Framework.id == export_data.framework_id)
     )
     framework = framework_result.scalar_one_or_none()
-    
+
     if not framework:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Framework not found"
         )
-    
+
     # Create export record
     audit_export = AuditExport(
         organization_id=org_id,
@@ -69,14 +69,14 @@ async def create_audit_export(
     db.add(audit_export)
     await db.commit()
     await db.refresh(audit_export)
-    
+
     try:
         # Get all relevant data
         controls_result = await db.execute(
             select(Control).where(Control.framework_id == export_data.framework_id)
         )
         controls = controls_result.scalars().all()
-        
+
         policies_result = await db.execute(
             select(Policy).where(
                 Policy.organization_id == org_id,
@@ -84,24 +84,24 @@ async def create_audit_export(
             )
         )
         policies = policies_result.scalars().all()
-        
+
         evidence_result = await db.execute(
             select(Evidence).where(Evidence.organization_id == org_id)
         )
         all_evidence = evidence_result.scalars().all()
-        
+
         tasks_result = await db.execute(
             select(Task).where(Task.organization_id == org_id)
         )
         all_tasks = tasks_result.scalars().all()
-        
+
         # Generate export
         timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
         export_filename = f"audit_export_{org_id}_{framework.name.replace(' ', '_')}_{timestamp}"
-        
+
         if export_data.export_type == "ZIP":
             export_path = os.path.join(EXPORT_DIR, f"{export_filename}.zip")
-            
+
             with zipfile.ZipFile(export_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
                 # Add summary JSON
                 summary = {
@@ -122,21 +122,21 @@ async def create_audit_export(
                     ]
                 }
                 zipf.writestr("summary.json", json.dumps(summary, indent=2))
-                
+
                 # Add policies as markdown
                 for policy in policies:
                     zipf.writestr(f"policies/{policy.title}.md", policy.content)
-                
+
                 # Add evidence files
                 for ev in all_evidence:
                     if os.path.exists(ev.file_url):
                         zipf.write(ev.file_url, f"evidence/{ev.file_name}")
-            
-            audit_export.download_url = export_path
+
+            audit_export.download_url = export_path  # type: ignore
         else:
             # Generate HTML report for PDF-style viewing
             export_path = os.path.join(EXPORT_DIR, f"{export_filename}.html")
-            
+
             html_content = f"""
 <!DOCTYPE html>
 <html>
@@ -159,41 +159,41 @@ async def create_audit_export(
 <body>
     <h1>Compliance Audit Report</h1>
     <p class="meta">Framework: {framework.name} | Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}</p>
-    
+
     <h2>Summary</h2>
     <ul>
         <li>Total Controls: {len(controls)}</li>
         <li>Policies: {len(policies)}</li>
         <li>Evidence Items: {len(all_evidence)}</li>
     </ul>
-    
+
     <h2>Controls</h2>
 """
-            
+
             for control in controls:
                 control_evidence = [e for e in all_evidence if e.control_id == control.id]
                 control_tasks = [t for t in all_tasks if t.control_id == control.id]
-                
+
                 html_content += f"""
     <div class="control">
         <span class="control-code">{control.control_code}</span> - {control.title}
         <p>{control.description}</p>
         <p class="meta">Evidence: {len(control_evidence)} | Tasks: {len(control_tasks)}</p>
 """
-                
+
                 for ev in control_evidence:
                     html_content += f"""
         <div class="evidence">📎 {ev.file_name} - Status: {ev.status}</div>
 """
-                
+
                 html_content += "</div>"
-            
+
             html_content += """
     <h2>Policies</h2>
 """
-            
+
             for policy in policies:
-                policy_html = markdown.markdown(policy.content)
+                policy_html = markdown.markdown(policy.content)  # type: ignore
                 html_content += f"""
     <div class="policy">
         <h3>{policy.title}</h3>
@@ -201,26 +201,26 @@ async def create_audit_export(
         {policy_html}
     </div>
 """
-            
+
             html_content += """
 </body>
 </html>
 """
-            
+
             with open(export_path, 'w') as f:
                 f.write(html_content)
-            
-            audit_export.download_url = export_path
-        
-        audit_export.status = "Ready"
-        audit_export.generated_at = datetime.utcnow()
+
+            audit_export.download_url = export_path  # type: ignore
+
+        audit_export.status = "Ready"  # type: ignore
+        audit_export.generated_at = datetime.utcnow()  # type: ignore
         await db.commit()
         await db.refresh(audit_export)
-        
+
         return audit_export
-        
+
     except Exception as e:
-        audit_export.status = "Failed"
+        audit_export.status = "Failed"  # type: ignore
         await db.commit()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -241,13 +241,13 @@ async def get_audit_export(
         )
     )
     export = result.scalar_one_or_none()
-    
+
     if not export:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Export not found"
         )
-    
+
     return export
 
 
@@ -264,25 +264,25 @@ async def download_audit_export(
         )
     )
     export = result.scalar_one_or_none()
-    
+
     if not export:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Export not found"
         )
-    
+
     if export.status != "Ready" or not export.download_url:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Export not ready for download"
         )
-    
+
     if not os.path.exists(export.download_url):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Export file not found"
         )
-    
+
     return FileResponse(
         export.download_url,
         filename=os.path.basename(export.download_url),

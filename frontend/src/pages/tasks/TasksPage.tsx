@@ -67,6 +67,9 @@ export function TasksPage() {
     },
   })
 
+  const watchedControlId = form.watch('control_id');
+  const watchedPriority = form.watch('priority');
+
   const createMutation = useMutation({
     mutationFn: async (data: any) => {
       return tasksApi.create({
@@ -177,7 +180,7 @@ export function TasksPage() {
                 <div className="space-y-2">
                   <Label>Control</Label>
                   <Select
-                    value={form.watch('control_id')}
+                    value={watchedControlId}
                     onValueChange={(value) => form.setValue('control_id', value)}
                   >
                     <SelectTrigger>
@@ -210,7 +213,7 @@ export function TasksPage() {
                   <div className="space-y-2">
                     <Label>Priority</Label>
                     <Select
-                      value={form.watch('priority')}
+                      value={watchedPriority}
                       onValueChange={(value) => form.setValue('priority', value)}
                     >
                       <SelectTrigger>

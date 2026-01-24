@@ -9,7 +9,7 @@ from app.db.models.audit_export import AuditExport
 
 __all__ = [
     "User",
-    "Organization", 
+    "Organization",
     "Framework",
     "Control",
     "Policy",
