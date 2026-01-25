@@ -1,6 +1,5 @@
 import { ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { useAuth } from '@/app/providers'
 import { cn } from '@/lib/utils'
 import {
   LayoutDashboard,
@@ -10,12 +9,12 @@ import {
   CheckSquare,
   Download,
   Settings,
-  LogOut,
   Menu,
   X,
   Bell,
   Search,
 } from 'lucide-react'
+import { UserButton } from '@neondatabase/neon-js/auth/react/ui';
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
 
@@ -34,7 +33,6 @@ const navigation = [
 ]
 
 export function Layout({ children }: LayoutProps) {
-  const { user, logout } = useAuth()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -104,32 +102,7 @@ export function Layout({ children }: LayoutProps) {
           {/* User info */}
           <div className="p-4" style={{ borderTop: '1px solid #e2e8f0' }}>
             <div className="flex items-center gap-3">
-              <div className="flex-shrink-0">
-                <div 
-                  className="h-10 w-10 rounded-full flex items-center justify-center font-semibold"
-                  style={{ 
-                    background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                    color: 'white',
-                    boxShadow: '0 4px 12px -2px rgba(59, 130, 246, 0.4)'
-                  }}
-                >
-                  {user?.full_name?.charAt(0).toUpperCase() || 'U'}
-                </div>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate" style={{ color: '#0f172a' }}>
-                  {user?.full_name || 'User'}
-                </p>
-                <p className="text-xs truncate" style={{ color: '#64748b' }}>{user?.role || 'Member'}</p>
-              </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={logout}
-                className="hover:bg-red-50 hover:text-red-600 transition-colors"
-              >
-                <LogOut className="h-4 w-4" />
-              </Button>
+                <UserButton />
             </div>
           </div>
         </div>
@@ -183,14 +156,8 @@ export function Layout({ children }: LayoutProps) {
               </Button>
               
               {/* User avatar for mobile */}
-              <div 
-                className="lg:hidden h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold"
-                style={{ 
-                  background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                  color: 'white'
-                }}
-              >
-                {user?.full_name?.charAt(0).toUpperCase() || 'U'}
+              <div className="lg:hidden">
+                <UserButton />
               </div>
             </div>
           </div>

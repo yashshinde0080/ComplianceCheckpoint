@@ -19,7 +19,7 @@ UPLOAD_DIR = "uploads/evidence"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
-@router.get("/", response_model=List[EvidenceRead])
+@router.get("", response_model=List[EvidenceRead])
 async def list_evidence(
     control_id: Optional[int] = None,
     current_user: User = Depends(get_current_active_user),

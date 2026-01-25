@@ -16,7 +16,7 @@ from app.services.control_seeder import seed_controls
 router = APIRouter()
 
 
-@router.get("/", response_model=List[ControlWithStatus])
+@router.get("", response_model=List[ControlWithStatus])
 async def list_controls(
     framework: Optional[str] = Query(None, description="Filter by framework name"),
     category: Optional[str] = Query(None, description="Filter by category"),

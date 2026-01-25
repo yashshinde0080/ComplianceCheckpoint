@@ -26,7 +26,7 @@ EXPORT_DIR = "exports"
 os.makedirs(EXPORT_DIR, exist_ok=True)
 
 
-@router.get("/", response_model=List[AuditExportRead])
+@router.get("", response_model=List[AuditExportRead])
 async def list_audit_exports(
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)

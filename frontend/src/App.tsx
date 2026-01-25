@@ -1,19 +1,8 @@
-import { BrowserRouter } from 'react-router-dom'
 
-import { AuthProvider } from './app/providers'
-import { AppRoutes } from './app/routes'
-import { Toaster } from './components/ui/toaster'
+import { AppRoutes } from './app/routes';
 
-
-function App() {
+export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <AppRoutes />
-        <Toaster />
-      </AuthProvider>
-    </BrowserRouter>
-  )
+    <AppRoutes />
+  );
 }
-
-export default App

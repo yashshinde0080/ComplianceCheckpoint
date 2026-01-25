@@ -13,7 +13,7 @@ from app.services.policy_generator import generate_policy_content
 router = APIRouter()
 
 
-@router.get("/", response_model=List[PolicyRead])
+@router.get("", response_model=List[PolicyRead])
 async def list_policies(
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
@@ -49,7 +49,7 @@ async def get_policy(
     return policy
 
 
-@router.post("/", response_model=PolicyRead)
+@router.post("", response_model=PolicyRead)
 async def create_policy(
     policy_data: PolicyCreate,
     current_user: User = Depends(get_current_active_user),

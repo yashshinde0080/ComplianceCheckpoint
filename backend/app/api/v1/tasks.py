@@ -12,7 +12,7 @@ from app.core.dependencies import get_current_active_user
 router = APIRouter()
 
 
-@router.get("/", response_model=List[TaskRead])
+@router.get("", response_model=List[TaskRead])
 async def list_tasks(
     status_filter: Optional[str] = Query(None, alias="status"),
     control_id: Optional[int] = None,
@@ -71,7 +71,7 @@ async def get_task(
     return task
 
 
-@router.post("/", response_model=TaskRead)
+@router.post("", response_model=TaskRead)
 async def create_task(
     task_data: TaskCreate,
     current_user: User = Depends(get_current_active_user),
