@@ -1,6 +1,7 @@
 import { ReactNode } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/app/providers'
 import {
   LayoutDashboard,
   Shield,
@@ -13,8 +14,9 @@ import {
   X,
   Bell,
   Search,
+  LogOut,
+  User,
 } from 'lucide-react'
-import { UserButton } from '@neondatabase/neon-js/auth/react/ui';
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
 
@@ -34,7 +36,14 @@ const navigation = [
 
 export function Layout({ children }: LayoutProps) {
   const location = useLocation()
+  const navigate = useNavigate()
+  const { user, logout } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
+  }
 
   return (
     <div className="min-h-screen" style={{ background: '#f1f5f9' }}>
@@ -101,9 +110,31 @@ export function Layout({ children }: LayoutProps) {
 
           {/* User info */}
           <div className="p-4" style={{ borderTop: '1px solid #e2e8f0' }}>
-            <div className="flex items-center gap-3">
-                <UserButton />
+            <div className="flex items-center gap-3 mb-3">
+              <div 
+                className="h-10 w-10 rounded-full flex items-center justify-center"
+                style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' }}
+              >
+                <User className="h-5 w-5 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate" style={{ color: '#0f172a' }}>
+                  {user?.full_name || 'User'}
+                </p>
+                <p className="text-xs truncate" style={{ color: '#64748b' }}>
+                  {user?.email || ''}
+                </p>
+              </div>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={handleLogout}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
           </div>
         </div>
       </aside>
@@ -157,7 +188,12 @@ export function Layout({ children }: LayoutProps) {
               
               {/* User avatar for mobile */}
               <div className="lg:hidden">
-                <UserButton />
+                <div 
+                  className="h-8 w-8 rounded-full flex items-center justify-center"
+                  style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' }}
+                >
+                  <User className="h-4 w-4 text-white" />
+                </div>
               </div>
             </div>
           </div>

@@ -1,22 +1,7 @@
-import {
-  RedirectToSignIn,
-  SignedIn,
-  SignedOut,
-} from '@neondatabase/neon-js/auth/react/ui';
-import { DashboardPage } from './dashboard/DashboardPage';
-import { Layout } from '@/components/layout/Layout';
+// This file is deprecated. Use the routes.tsx for routing instead.
+// Redirecting to the AuthPage component.
+import { Navigate } from 'react-router-dom';
 
 export function Home() {
-  return (
-    <>
-      <SignedIn>
-        <Layout>
-          <DashboardPage />
-        </Layout>
-      </SignedIn>
-      <SignedOut>
-        <RedirectToSignIn />
-      </SignedOut>
-    </>
-  );
+  return <Navigate to="/dashboard" replace />;
 }

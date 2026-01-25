@@ -1,5 +1,5 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
-import { SignedIn, SignedOut, RedirectToSignIn } from '@neondatabase/neon-js/auth/react/ui'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { useAuth } from '@/app/providers'
 import { Layout } from '@/components/layout/Layout'
 import { AuthPage } from '@/pages/auth/AuthPage'
 import { AccountPage } from '@/pages/account/AccountPage'
@@ -12,33 +12,75 @@ import { EvidencePage } from '@/pages/evidence/EvidencePage'
 import { TasksPage } from '@/pages/tasks/TasksPage'
 import { AuditPage } from '@/pages/audit/AuditPage'
 import { SettingsPage } from '@/pages/settings/SettingsPage'
+import { routerLogger } from '@/lib/logger'
+import { useEffect } from 'react'
 
-
-
-function PrivateRoute({ children }: { children: React.ReactNode }) {
+// Loading spinner component
+function LoadingScreen() {
   return (
-    <>
-      <SignedIn>
-        <Layout>{children}</Layout>
-      </SignedIn>
-      <SignedOut>
-        <RedirectToSignIn />
-      </SignedOut>
-    </>
+    <div className="min-h-screen flex items-center justify-center" style={{ background: '#f1f5f9' }}>
+      <div className="text-center">
+        <div 
+          className="inline-block h-12 w-12 border-4 rounded-full animate-spin mb-4"
+          style={{ 
+            borderColor: 'rgba(59, 130, 246, 0.2)',
+            borderTopColor: '#3b82f6'
+          }}
+        />
+        <p style={{ color: '#64748b' }}>Loading...</p>
+      </div>
+    </div>
   )
 }
 
+function PrivateRoute({ children }: { children: React.ReactNode }) {
+  const { user, isLoading } = useAuth()
+  const location = useLocation()
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (user) {
+        routerLogger.nav(location.pathname, 'accessed private route')
+      } else {
+        routerLogger.nav('/login', 'redirecting (not authenticated)')
+      }
+    }
+  }, [location.pathname, user, isLoading])
+
+  if (isLoading) {
+    return <LoadingScreen />
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />
+  }
+
+  return <Layout>{children}</Layout>
+}
+
 function PublicRoute({ children }: { children: React.ReactNode }) {
-  return (
-    <>
-      <SignedIn>
-        <Navigate to="/dashboard" replace />
-      </SignedIn>
-      <SignedOut>
-        {children}
-      </SignedOut>
-    </>
-  )
+  const { user, isLoading } = useAuth()
+  const location = useLocation()
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (user) {
+        routerLogger.nav('/dashboard', 'redirecting (already authenticated)')
+      } else {
+        routerLogger.nav(location.pathname, 'accessed public route')
+      }
+    }
+  }, [location.pathname, user, isLoading])
+
+  if (isLoading) {
+    return <LoadingScreen />
+  }
+
+  if (user) {
+    return <Navigate to="/dashboard" replace />
+  }
+
+  return <>{children}</>
 }
 
 export function AppRoutes() {

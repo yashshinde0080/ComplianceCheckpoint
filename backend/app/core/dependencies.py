@@ -16,22 +16,47 @@ async def get_current_user(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
     db: AsyncSession = Depends(get_db)
 ) -> User:
-    # MOCK AUTH: In development/migration, if token is missing or invalid, 
-    # fallback to the first user in the database.
+    # If no credentials provided, try fallback to first user (development only)
+    if not credentials:
+        # DEVELOPMENT FALLBACK: Return first user if no token
+        result = await db.execute(select(User))
+        user = result.scalars().first()
+        if user:
+            return user
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated"
+        )
     
-    # Try to use the first user in the DB
-    result = await db.execute(select(User))
-    user = result.scalars().first()
-
-    if user:
-        return user
-
-    # If absolutely no user exists, logic will fail later (or we could raise here).
-    # But for now let's raise if DB is empty as we need a user context.
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="No user context available (Database empty)"
-    )
+    # Decode and verify the token
+    token = credentials.credentials
+    payload = decode_token(token)
+    
+    if payload is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token"
+        )
+    
+    # Get user ID from token
+    user_id = payload.get("sub")
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token payload"
+        )
+    
+    # Find user in database
+    result = await db.execute(select(User).where(User.id == int(user_id)))
+    user = result.scalar_one_or_none()
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found"
+        )
+    
+    return user
 
 
 async def get_current_active_user(
