@@ -16,13 +16,7 @@ async def get_current_user(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
     db: AsyncSession = Depends(get_db)
 ) -> User:
-    # If no credentials provided, try fallback to first user (development only)
     if not credentials:
-        # DEVELOPMENT FALLBACK: Return first user if no token
-        result = await db.execute(select(User))
-        user = result.scalars().first()
-        if user:
-            return user
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not authenticated"
