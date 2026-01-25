@@ -15,11 +15,10 @@ if url_obj.drivername == "postgresql":
 # Handle SSL for Neon/Cloud Postgres
 connect_args = {}
 if url_obj.query.get("sslmode") == "require":
-    # Create SSL context that allows self-signed or cloud certs
-    # This is often necessary for Neon/Heroku/etc when using asyncpg
+    # Create SSL context for Neon/Cloud Postgres
     ssl_context = ssl.create_default_context()
-    ssl_context.check_hostname = False
-    ssl_context.verify_mode = ssl.CERT_NONE
+    ssl_context.check_hostname = True
+    ssl_context.verify_mode = ssl.CERT_REQUIRED
     connect_args["ssl"] = ssl_context
 
 # Remove sslmode and channel_binding from query as asyncpg doesn't support them in options

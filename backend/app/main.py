@@ -59,18 +59,13 @@ app = FastAPI(
 # Add logging middleware (must be added before CORS)
 app.add_middleware(LoggingMiddleware)
 
-# CORS - Allow multiple ports for development
-cors_origins = [
-    settings.FRONTEND_URL,
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "http://localhost:5175",
-    "http://localhost:5176",
-    "http://localhost:5177",
-    "http://localhost:5178",
-    "http://localhost:5179",
-    "http://localhost:5180",
-]
+# CORS - Restricted origins
+cors_origins = [settings.FRONTEND_URL]
+if settings.ENVIRONMENT == "development":
+    cors_origins.extend([
+        "http://localhost:5173",
+        "http://127.0.0.1:5173"
+    ])
 
 app.add_middleware(
     CORSMiddleware,

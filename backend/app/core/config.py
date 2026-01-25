@@ -7,6 +7,9 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     FRONTEND_URL: str = "http://localhost:5173"
 
+    # Neon Auth
+    NEON_AUTH_URL: str = ""
+
     # JWT Settings
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440

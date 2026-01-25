@@ -11,13 +11,14 @@ from app.schemas.user import UserCreate, UserRead, Token, LoginRequest
 from app.core.security import verify_password, get_password_hash, create_access_token
 from app.core.config import settings
 from app.core.dependencies import get_current_active_user
+from app.core.ratelimit import rate_limiter
 from app.core.logging_config import get_logger, log_auth, log_success, log_error, log_warning
 
 router = APIRouter()
 logger = get_logger("api.auth")
 
 
-@router.post("/register", response_model=UserRead)
+@router.post("/register", response_model=UserRead, dependencies=[Depends(rate_limiter(max_requests=5, window_seconds=60))])
 async def register(
     user_data: UserCreate,
     db: AsyncSession = Depends(get_db)
@@ -69,7 +70,7 @@ async def register(
     return new_user
 
 
-@router.post("/login", response_model=Token)
+@router.post("/login", response_model=Token, dependencies=[Depends(rate_limiter(max_requests=10, window_seconds=60))])
 async def login(
     login_data: LoginRequest,
     db: AsyncSession = Depends(get_db)
