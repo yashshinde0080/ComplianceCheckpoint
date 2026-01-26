@@ -46,9 +46,11 @@ const Hero = () => {
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Button size="lg" className="gap-2">
-                Start compliance readiness
-                <ArrowRight className="h-4 w-4" />
+              <Button size="lg" className="gap-2" asChild>
+                <a href="http://localhost:5173/register">
+                  Start compliance readiness
+                  <ArrowRight className="h-4 w-4" />
+                </a>
               </Button>
               <Button variant="outline" size="lg" className="gap-2">
                 <FileText className="h-4 w-4" />

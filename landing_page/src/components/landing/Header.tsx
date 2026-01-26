@@ -28,12 +28,16 @@ const Header = () => {
 
         {/* CTA Buttons */}
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" className="hidden sm:inline-flex">
-            Sign in
+          <Button variant="ghost" size="sm" className="hidden sm:inline-flex" asChild>
+            <a href="http://localhost:5173/login">
+              Sign in
+            </a>
           </Button>
-          <Button size="sm" className="gap-2">
-            <Shield className="h-4 w-4" />
-            Start readiness
+          <Button size="sm" className="gap-2" asChild>
+            <a href="http://localhost:5173/register">
+              <Shield className="h-4 w-4" />
+              Start readiness
+            </a>
           </Button>
           
           {/* Mobile menu button */}
@@ -66,8 +70,10 @@ const Header = () => {
             >
               FAQ
             </a>
-            <Button variant="outline" size="sm" className="w-full">
-              Sign in
+            <Button variant="outline" size="sm" className="w-full" asChild>
+              <a href="http://localhost:5173/login">
+                Sign in
+              </a>
             </Button>
           </nav>
         </div>

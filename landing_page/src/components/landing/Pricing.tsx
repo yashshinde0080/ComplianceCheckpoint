@@ -117,9 +117,12 @@ const Pricing = () => {
                 variant={plan.highlighted ? "default" : "outline"} 
                 className="w-full gap-2"
                 size="lg"
+                asChild
               >
-                {plan.cta}
-                <ArrowRight className="h-4 w-4" />
+                <a href="http://localhost:5173/register" className="w-full">
+                  {plan.cta}
+                  <ArrowRight className="h-4 w-4" />
+                </a>
               </Button>
             </div>
           ))}

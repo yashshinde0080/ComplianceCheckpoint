@@ -50,9 +50,11 @@ const FinalCTA = () => {
               </div>
 
               <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-                <Button size="lg" className="gap-2 px-8">
-                  Start compliance readiness
-                  <ArrowRight className="h-4 w-4" />
+                <Button size="lg" className="gap-2 px-8" asChild>
+                  <a href="http://localhost:5173/register">
+                    Start compliance readiness
+                    <ArrowRight className="h-4 w-4" />
+                  </a>
                 </Button>
                 <Button variant="outline" size="lg" className="gap-2">
                   <Download className="h-4 w-4" />

@@ -1,0 +1,47 @@
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=compliance_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/compliance_db
+      - SECRET_KEY=dev_secret_key_change_in_production
+      - FRONTEND_URL=http://localhost:3000
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+  landing_page:
+    build:
+      context: ./landing_page
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3001:80"
+
+volumes:
+  postgres_data:
