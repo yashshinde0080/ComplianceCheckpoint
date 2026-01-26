@@ -1,7 +1,6 @@
 import { createContext, useContext, ReactNode, useState, useEffect } from 'react'
-import { api } from '@/lib/api'
+import { authApi } from '@/lib/api'
 import { authLogger } from '@/lib/logger'
-import { authClient } from '@/lib/auth'
 
 interface User {
   id: number
@@ -38,25 +37,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const initAuth = async () => {
       authLogger.info('Initializing authentication...')
-      try {
-        // Restore session from Neon
-        // @ts-expect-error - SDK type mismatch
-        const session = await authClient.getSession();
-        if (session) {
-          // @ts-expect-error - SDK type mismatch
-          const token = await session.getToken();
-          setToken(token);
-
-          // Fetch user details from backend (using api interceptor which now has token)
-          // But we can also set header explicitly to be safe
-          const userResponse = await api.get('/auth/me', {
-            headers: { Authorization: `Bearer ${token}` }
-          });
+      const storedToken = localStorage.getItem('token')
+      
+      if (storedToken) {
+        try {
+          // Verify token and get user details
+          // Note: api interceptor automatically adds the token from localStorage
+          const userResponse = await authApi.me();
+          
+          setToken(storedToken);
           setUser(userResponse.data);
           authLogger.success(`Session restored for: ${userResponse.data.email}`);
+        } catch (e) {
+          // Token invalid or expired
+          authLogger.error('Session restore failed', e)
+          localStorage.removeItem('token')
+          setToken(null)
+          setUser(null)
         }
-      } catch (e) {
-        // Session restore failed or no session
+      } else {
+         authLogger.info('No session found')
       }
       
       setIsLoading(false)
@@ -69,49 +69,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     authLogger.auth(`Logging in: ${email}`)
     
-    // Neon Login
-    const result = await authClient.signInWithEmail(email, password);
+    try {
+      const result = await authApi.login(email, password);
+      const { access_token } = result.data;
 
-    // If success, get token
-    const token = await result.session?.getToken();
-    const validToken = token || (result as any).access_token;
+      if (access_token) {
+        localStorage.setItem('token', access_token);
+        setToken(access_token);
+        authLogger.success('Token received from Backend')
 
-    if (validToken) {
-        setToken(validToken);
-        authLogger.success('Token received from Neon')
-
-        // Get user info from OUR backend
-        const userResponse = await api.get('/auth/me', {
-          headers: { Authorization: `Bearer ${validToken}` }
-        })
+        // Get user info
+        const userResponse = await authApi.me()
         setUser(userResponse.data)
 
         authLogger.success(`Login successful`)
         // Redact user details in log
         authLogger.state('user', '[Redacted]')
+      }
+    } catch (error) {
+      authLogger.error('Login failed', error)
+      throw error
     }
   }
 
   const register = async (data: RegisterData) => {
     authLogger.auth(`Registering new user: ${data.email}`)
     
-    // Neon Register
-    await authClient.signUpWithEmail(data.email, data.password, {
+    try {
+      await authApi.register({
+        email: data.email,
+        password: data.password,
         full_name: data.full_name
-    });
+      });
 
-    authLogger.success('Registration successful (Neon)')
-    
-    // Sync with local backend is handled by login flow usually,
-    // or we call a sync endpoint.
-    // For now, let's auto-login.
-    authLogger.info('Auto-logging in after registration...')
-    await login(data.email, data.password)
+      authLogger.success('Registration successful')
+      
+      authLogger.info('Auto-logging in after registration...')
+      await login(data.email, data.password)
+    } catch (error) {
+      authLogger.error('Registration failed', error)
+      throw error
+    }
   }
 
   const logout = async () => {
     authLogger.auth('Logging out...')
-    await authClient.signOut();
+    localStorage.removeItem('token')
     setToken(null)
     setUser(null)
     authLogger.success('Logged out successfully')

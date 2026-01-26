@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     # JWT Settings
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
+    
+    ENVIRONMENT: str = "development"
 
     # REMOVED: All AWS settings - not needed
 
