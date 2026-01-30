@@ -16,8 +16,6 @@ We trade automation theater for:
 - Crystal-clear control requirements
 - Auditor-friendly evidence organization
 - Export formats that work in actual audits
-- No bullshit
-
 ---
 
 ## What We Build (v1 Scope)
