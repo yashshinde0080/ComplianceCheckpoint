@@ -2,8 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { policiesApi } from '@/lib/api'
-import { CardContent } from '@/components/ui/card'
-import { MagicBentoCard, MagicBentoGrid } from '@/components/ui/MagicBento'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -180,18 +179,17 @@ export function PoliciesPage() {
         </Dialog>
       </div>
 
-      <MagicBentoGrid className="space-y-6">
+      <div className="grid gap-6">
         {/* Policies List */}
         {policies && policies.length > 0 ? (
           <div className="grid gap-4">
             {policies.map((policy: any, index: number) => (
-              <MagicBentoCard
+              <Card
                 key={policy.id}
-                className="magic-bento-card--border-glow animate-fade-in min-h-[100px]"
+                className="animate-fade-in border-white/10 bg-card/50 hover:bg-card/80 transition-all duration-300"
                 style={{ animationDelay: `${index * 100}ms` }}
-                spotlightColor="132, 0, 255"
               >
-                <CardContent className="p-6 relative z-30">
+                <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                       <div className="p-3 bg-primary/10 rounded-xl border border-primary/20">
@@ -238,12 +236,12 @@ export function PoliciesPage() {
                     </div>
                   </div>
                 </CardContent>
-              </MagicBentoCard>
+              </Card>
             ))}
           </div>
         ) : (
-          <MagicBentoCard className="magic-bento-card--border-glow animate-fade-in" spotlightColor="132, 0, 255">
-            <CardContent className="py-12 text-center relative z-30">
+          <Card className="border-white/10 bg-card/50">
+            <CardContent className="py-12 text-center">
               <div className="bg-white/[0.02] w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5">
                 <FileText className="h-8 w-8 text-muted-foreground/30" />
               </div>
@@ -256,9 +254,9 @@ export function PoliciesPage() {
                 Generate First Policy
               </Button>
             </CardContent>
-          </MagicBentoCard>
+          </Card>
         )}
-      </MagicBentoGrid>
+      </div>
     </div>
   )
 }

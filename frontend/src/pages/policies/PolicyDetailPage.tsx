@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { policiesApi } from '@/lib/api'
-import { CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { MagicBentoCard } from '@/components/ui/MagicBento'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import ReactMarkdown from 'react-markdown'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -167,14 +167,14 @@ export function PolicyDetailPage() {
       </div>
 
       {/* Content */}
-      <MagicBentoCard className="magic-bento-card--border-glow border-white/5" spotlightColor="132, 0, 255">
-        <CardHeader className="relative z-30">
+      <Card className="border-white/10 bg-card/50 backdrop-blur-sm">
+        <CardHeader className="">
           <CardTitle className="flex items-center font-bold text-lg">
             <FileText className="h-5 w-5 mr-2 text-primary" />
             Document Viewer
           </CardTitle>
         </CardHeader>
-        <CardContent className="relative z-30">
+        <CardContent className="">
           {isEditing ? (
             <Textarea
               value={editedContent}
@@ -182,14 +182,12 @@ export function PolicyDetailPage() {
               className="min-h-[600px] font-mono text-sm bg-white/[0.02] border-white/10 p-6 leading-relaxed focus:bg-white/[0.04] transition-colors"
             />
           ) : (
-            <div className="prose prose-sm prose-invert max-w-none">
-              <div className="whitespace-pre-wrap font-sans text-muted-foreground/90 bg-white/[0.02] border border-white/5 p-8 rounded-2xl leading-loose tracking-wide">
-                {policy.content}
-              </div>
+            <div className="prose prose-invert max-w-none bg-white/[0.02] border border-white/5 p-8 rounded-2xl">
+              <ReactMarkdown>{policy.content}</ReactMarkdown>
             </div>
           )}
         </CardContent>
-      </MagicBentoCard>
+      </Card>
     </div>
   )
 }
