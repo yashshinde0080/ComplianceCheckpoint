@@ -1,0 +1,61 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+/* Custom Project Theme Colors - Obsidian Deep Dark Theme */
+:root {
+  /* Primary Color: #8400FF (Electric Purple) */
+  --ifm-color-primary: #8400FF;
+  --ifm-color-primary-dark: #7600e6;
+  --ifm-color-primary-darker: #7000da;
+  --ifm-color-primary-darkest: #5c00b3;
+  --ifm-color-primary-light: #911aff;
+  --ifm-color-primary-lighter: #9826ff;
+  --ifm-color-primary-lightest: #ab4dff;
+  
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+/* Dark Mode Overrides - Matching Project Theme */
+[data-theme='dark'] {
+  /* Background: #060010 */
+  --ifm-background-color: #060010;
+  --ifm-background-surface-color: #0d0022; /* Slightly lighter for cards */
+  
+  --ifm-color-primary: #8400FF;
+  --ifm-color-primary-dark: #7600e6;
+  --ifm-color-primary-darker: #7000da;
+  --ifm-color-primary-darkest: #5c00b3;
+  --ifm-color-primary-light: #911aff;
+  --ifm-color-primary-lighter: #9826ff;
+  --ifm-color-primary-lightest: #ab4dff;
+  
+  --docusaurus-highlighted-code-line-bg: rgba(132, 0, 255, 0.1);
+  
+  /* Text Colors */
+  --ifm-font-color-base: #ffffff;
+  --ifm-color-content: #ffffff;
+  
+  /* Navbar */
+  --ifm-navbar-background-color: #060010;
+  --ifm-navbar-shadow: 0 1px 2px 0 rgba(132, 0, 255, 0.1);
+  
+  /* Sidebar */
+  --ifm-menu-color-background-active: rgba(132, 0, 255, 0.1);
+  --ifm-menu-color-active: #8400FF;
+  
+  /* Footer */
+  --ifm-footer-background-color: #030008;
+}
+
+/* Apply some glassmorphism if possible or just clean styles */
+.navbar {
+  border-bottom: 1px solid rgba(132, 0, 255, 0.2);
+}
+
+.footer {
+  border-top: 1px solid rgba(132, 0, 255, 0.2);
+}
