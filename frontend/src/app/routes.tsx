@@ -2,6 +2,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/app/providers'
 import { Layout } from '@/components/layout/Layout'
 import { AuthPage } from '@/pages/auth/AuthPage'
+import { LandingPage } from '@/pages/landing/LandingPage'
 import { AccountPage } from '@/pages/account/AccountPage'
 import { DashboardPage } from '@/pages/dashboard/DashboardPage'
 import { ControlsPage } from '@/pages/controls/ControlsPage'
@@ -20,9 +21,9 @@ function LoadingScreen() {
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: '#f1f5f9' }}>
       <div className="text-center">
-        <div 
+        <div
           className="inline-block h-12 w-12 border-4 rounded-full animate-spin mb-4"
-          style={{ 
+          style={{
             borderColor: 'rgba(59, 130, 246, 0.2)',
             borderTopColor: '#3b82f6'
           }}
@@ -186,11 +187,16 @@ export function AppRoutes() {
         }
       />
 
-      {/* Redirect root to dashboard */}
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      
+      {/* Landing Page as root */}
+      <Route
+        path="/"
+        element={
+          <LandingPage />
+        }
+      />
+
       {/* 404 */}
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }

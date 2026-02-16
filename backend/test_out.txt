@@ -1,0 +1,8 @@
+--- Database Connection Test ---
+Testing URL: postgresql://neondb_...
+Parsed Host: ep-gentle-hall-a1zsdgpr.ap-southeast-1.aws.neon.tech
+Parsed User: neondb_owner
+Parsed Pass: ***
+Parsed DB: neondb
+Connecting...
+FAILURE: [Errno 11001] getaddrinfo failed

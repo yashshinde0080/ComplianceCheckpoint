@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { organizationApi } from '@/lib/api'
 import { useAuth } from '@/app/providers'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { MagicBentoCard, MagicBentoGrid } from '@/components/ui/MagicBento'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -128,187 +129,211 @@ export function SettingsPage() {
     <div className="space-y-6 max-w-3xl">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-        <p className="text-gray-500">Manage your organization and account settings</p>
+        <h1 className="text-2xl font-bold text-foreground">Settings</h1>
+        <p className="text-muted-foreground">Manage your organization and account settings</p>
       </div>
 
-      {/* User Info */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <User className="h-5 w-5 mr-2" />
-            Account Information
-          </CardTitle>
-          <CardDescription>
-            Your personal account details
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label className="text-gray-500">Name</Label>
-              <p className="font-medium">{user?.full_name}</p>
-            </div>
-            <div>
-              <Label className="text-gray-500">Email</Label>
-              <p className="font-medium">{user?.email}</p>
-            </div>
-            <div>
-              <Label className="text-gray-500">Role</Label>
-              <Badge variant="secondary" className="mt-1">
-                {user?.role}
-              </Badge>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Organization Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Building className="h-5 w-5 mr-2" />
-            Organization Settings
-          </CardTitle>
-          <CardDescription>
-            Configure your organization details
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={form.handleSubmit(handleSave)} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Organization Name</Label>
-              <Input
-                id="name"
-                {...form.register('name')}
-                defaultValue={organization?.name}
-                placeholder="Your Company Name"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="industry">Industry</Label>
-                <Select
-                  value={watchedIndustry || organization?.industry}
-                  onValueChange={(value) => form.setValue('industry', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select industry" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {INDUSTRIES.map((industry) => (
-                      <SelectItem key={industry} value={industry}>
-                        {industry}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+      <MagicBentoGrid className="space-y-6">
+        {/* User Info */}
+        <MagicBentoCard className="magic-bento-card--border-glow animate-fade-in min-h-[200px]" spotlightColor="132, 0, 255">
+          <CardHeader className="relative z-30">
+            <CardTitle className="flex items-center text-lg font-bold">
+              <User className="h-5 w-5 mr-2 text-primary" />
+              Account Information
+            </CardTitle>
+            <CardDescription className="text-muted-foreground/60">
+              Your personal account details
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="relative z-30">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-1">
+                <Label className="text-foreground/40 text-[10px] uppercase font-bold tracking-widest">Name</Label>
+                <p className="font-bold text-foreground">{user?.full_name}</p>
               </div>
+              <div className="space-y-1">
+                <Label className="text-foreground/40 text-[10px] uppercase font-bold tracking-widest">Email</Label>
+                <p className="font-bold text-foreground">{user?.email}</p>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-foreground/40 text-[10px] uppercase font-bold tracking-widest">System Role</Label>
+                <div className="mt-1">
+                  <Badge className="bg-primary/20 text-primary border-primary/20 text-[10px] font-bold uppercase tracking-wider">
+                    {user?.role}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </MagicBentoCard>
 
+        {/* Organization Settings */}
+        <MagicBentoCard
+          className="magic-bento-card--border-glow animate-fade-in"
+          style={{ animationDelay: '100ms' }}
+          spotlightColor="132, 0, 255"
+        >
+          <CardHeader className="relative z-30">
+            <CardTitle className="flex items-center text-lg font-bold">
+              <Building className="h-5 w-5 mr-2 text-primary" />
+              Organization Profile
+            </CardTitle>
+            <CardDescription className="text-muted-foreground/60">
+              Configure your professional environment
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="relative z-30">
+            <form onSubmit={form.handleSubmit(handleSave)} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="employee_count">Number of Employees</Label>
+                <Label htmlFor="name" className="text-foreground font-bold text-xs uppercase tracking-wider">Organization Name</Label>
                 <Input
-                  id="employee_count"
-                  type="number"
-                  {...form.register('employee_count')}
-                  defaultValue={organization?.employee_count}
-                  placeholder="e.g., 50"
+                  id="name"
+                  className="bg-white/5 border-white/10 text-foreground focus:border-primary/50 transition-colors"
+                  {...form.register('name')}
+                  defaultValue={organization?.name}
+                  placeholder="Your Company Name"
                 />
               </div>
-            </div>
 
-            <div className="pt-4">
-              <Button type="submit" disabled={updateMutation.isPending}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="industry" className="text-foreground font-bold text-xs uppercase tracking-wider">Industry</Label>
+                  <Select
+                    value={watchedIndustry || organization?.industry}
+                    onValueChange={(value) => form.setValue('industry', value)}
+                  >
+                    <SelectTrigger className="bg-white/5 border-white/10 text-foreground">
+                      <SelectValue placeholder="Select industry" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-white/10">
+                      {INDUSTRIES.map((industry) => (
+                        <SelectItem key={industry} value={industry}>
+                          {industry}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="employee_count" className="text-foreground font-bold text-xs uppercase tracking-wider">Employee Count</Label>
+                  <Input
+                    id="employee_count"
+                    type="number"
+                    className="bg-white/5 border-white/10 text-foreground"
+                    {...form.register('employee_count')}
+                    defaultValue={organization?.employee_count}
+                    placeholder="e.g., 50"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <Button type="submit" className="btn-gradient shadow-lg px-8" disabled={updateMutation.isPending}>
+                  <Save className="h-4 w-4 mr-2" />
+                  {updateMutation.isPending ? 'Syncing...' : 'Save Settings'}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </MagicBentoCard>
+
+        {/* Compliance Targets */}
+        <MagicBentoCard
+          className="magic-bento-card--border-glow animate-fade-in"
+          style={{ animationDelay: '200ms' }}
+          spotlightColor="132, 0, 255"
+        >
+          <CardHeader className="relative z-30">
+            <CardTitle className="flex items-center text-lg font-bold">
+              <Shield className="h-5 w-5 mr-2 text-success" />
+              Compliance Frameworks
+            </CardTitle>
+            <CardDescription className="text-muted-foreground/60">
+              Select targets to activate specialized libraries
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="relative z-30">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {COMPLIANCE_FRAMEWORKS.map((framework) => {
+                const isSelected = selectedFrameworks.includes(framework.value)
+                return (
+                  <button
+                    key={framework.value}
+                    type="button"
+                    onClick={() => toggleFramework(framework.value)}
+                    className={`
+                      p-5 rounded-2xl border transition-all relative group
+                      ${isSelected
+                        ? 'border-primary/40 bg-primary/10'
+                        : 'border-white/5 bg-white/[0.02] hover:border-white/20'
+                      }
+                    `}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className={`font-bold transition-colors ${isSelected ? 'text-primary' : 'text-foreground/80'}`}>
+                        {framework.label}
+                      </span>
+                      {isSelected && (
+                        <div className="bg-primary p-1 rounded-full shadow-glow-sm">
+                          <Check className="h-3 w-3 text-white" />
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+            <div className="mt-8">
+              <Button
+                onClick={() => updateMutation.mutate(form.getValues())}
+                className="bg-white/5 border border-white/10 hover:border-primary/40 hover:bg-primary/5 transition-all w-full md:w-auto h-11 px-8 font-bold"
+                disabled={updateMutation.isPending}
+              >
                 <Save className="h-4 w-4 mr-2" />
-                {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
+                Update Frameworks
               </Button>
             </div>
-          </form>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </MagicBentoCard>
 
-      {/* Compliance Targets */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Shield className="h-5 w-5 mr-2" />
-            Compliance Targets
-          </CardTitle>
-          <CardDescription>
-            Select the compliance frameworks you're working towards
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {COMPLIANCE_FRAMEWORKS.map((framework) => {
-              const isSelected = selectedFrameworks.includes(framework.value)
-              return (
-                <button
-                  key={framework.value}
-                  type="button"
-                  onClick={() => toggleFramework(framework.value)}
-                  className={`
-                    p-4 rounded-lg border-2 text-left transition-all
-                    ${isSelected
-                      ? 'border-primary bg-primary/5'
-                      : 'border-gray-200 hover:border-gray-300'
-                    }
-                  `}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">{framework.label}</span>
-                    {isSelected && (
-                      <Check className="h-5 w-5 text-primary" />
-                    )}
-                  </div>
-                </button>
-              )
-            })}
-          </div>
-          <div className="mt-4">
-            <Button
-              onClick={() => updateMutation.mutate(form.getValues())}
-              disabled={updateMutation.isPending}
-            >
-              <Save className="h-4 w-4 mr-2" />
-              Save Compliance Targets
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Danger Zone */}
-      <Card className="border-red-200">
-        <CardHeader>
-          <CardTitle className="text-red-600">Danger Zone</CardTitle>
-          <CardDescription>
-            Irreversible actions for your account
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg">
-            <div>
-              <h4 className="font-medium text-red-900">Delete Organization</h4>
-              <p className="text-sm text-red-700">
-                Permanently delete your organization and all associated data.
-              </p>
+        {/* Danger Zone */}
+        <MagicBentoCard
+          className="magic-bento-card--border-glow border-red-900/20 bg-red-950/10 animate-fade-in"
+          style={{ animationDelay: '300ms' }}
+          spotlightColor="239, 68, 68"
+        >
+          <CardHeader className="relative z-30">
+            <CardTitle className="text-red-500 font-bold tracking-tight">System Termination</CardTitle>
+            <CardDescription className="text-red-900/60 font-medium">
+              Permanent administrative actions
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="relative z-30">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6 bg-red-500/5 rounded-2xl border border-red-500/10">
+              <div>
+                <h4 className="font-bold text-red-500">Delete Organization</h4>
+                <p className="text-xs text-red-900/80 mt-1 leading-relaxed">
+                  This action will wipe all controls, evidence, and audit logs. This cannot be undone.
+                </p>
+              </div>
+              <Button
+                variant="destructive"
+                className="px-8 shadow-lg shadow-red-900/40"
+                onClick={() => {
+                  toast({
+                    title: 'Demo Protection Active',
+                    description: 'Organizational deletion is disabled in the prototype environment.',
+                    variant: 'destructive',
+                  })
+                }}
+              >
+                Terminate Data
+              </Button>
             </div>
-            <Button
-              variant="destructive"
-              onClick={() => {
-                toast({
-                  title: 'Not implemented',
-                  description: 'This feature is not available in the demo.',
-                  variant: 'destructive',
-                })
-              }}
-            >
-              Delete
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </MagicBentoCard>
+      </MagicBentoGrid>
     </div>
   )
 }

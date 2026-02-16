@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { policiesApi } from '@/lib/api'
-import { Card, CardContent } from '@/components/ui/card'
+import { CardContent } from '@/components/ui/card'
+import { MagicBentoCard, MagicBentoGrid } from '@/components/ui/MagicBento'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -118,8 +119,8 @@ export function PoliciesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Policies</h1>
-          <p className="text-gray-500">Manage your compliance policies</p>
+          <h1 className="text-2xl font-bold text-foreground">Policies</h1>
+          <p className="text-muted-foreground">Manage your compliance policies</p>
         </div>
         <Dialog open={generateDialogOpen} onOpenChange={setGenerateDialogOpen}>
           <DialogTrigger asChild>
@@ -179,76 +180,85 @@ export function PoliciesPage() {
         </Dialog>
       </div>
 
-      {/* Policies List */}
-      {policies && policies.length > 0 ? (
-        <div className="grid gap-4">
-          {policies.map((policy: any) => (
-            <Card key={policy.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className="p-3 bg-primary/10 rounded-lg">
-                      <FileText className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <Link
-                        to={`/policies/${policy.id}`}
-                        className="font-medium text-gray-900 hover:text-primary"
-                      >
-                        {policy.title}
-                      </Link>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge className={cn(getStatusColor(policy.status), 'text-xs')}>
-                          {policy.status}
-                        </Badge>
-                        <span className="text-xs text-gray-400">
-                          Version {policy.version}
-                        </span>
-                        <span className="text-xs text-gray-400">
-                          Updated {formatDate(policy.updated_at)}
-                        </span>
+      <MagicBentoGrid className="space-y-6">
+        {/* Policies List */}
+        {policies && policies.length > 0 ? (
+          <div className="grid gap-4">
+            {policies.map((policy: any, index: number) => (
+              <MagicBentoCard
+                key={policy.id}
+                className="magic-bento-card--border-glow animate-fade-in min-h-[100px]"
+                style={{ animationDelay: `${index * 100}ms` }}
+                spotlightColor="132, 0, 255"
+              >
+                <CardContent className="p-6 relative z-30">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="p-3 bg-primary/10 rounded-xl border border-primary/20">
+                        <FileText className="h-6 w-6 text-primary" />
+                      </div>
+                      <div>
+                        <Link
+                          to={`/policies/${policy.id}`}
+                          className="font-bold text-lg text-foreground hover:text-primary transition-colors block"
+                        >
+                          {policy.title}
+                        </Link>
+                        <div className="flex items-center gap-3 mt-1.5">
+                          <Badge className={cn(getStatusColor(policy.status), 'text-[10px] uppercase font-bold tracking-wider')}>
+                            {policy.status}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground/60 font-medium">
+                            v{policy.version}
+                          </span>
+                          <span className="text-xs text-muted-foreground/40 font-medium italic">
+                            Updated {formatDate(policy.updated_at)}
+                          </span>
+                        </div>
                       </div>
                     </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-red-500/60 hover:text-red-500 hover:bg-red-500/10 h-9 w-9 transition-all"
+                        onClick={() => {
+                          if (confirm('Are you sure you want to delete this policy?')) {
+                            deleteMutation.mutate(policy.id)
+                          }
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-9 w-9 bg-white/5 border border-white/10 hover:border-primary/40 transition-all" asChild>
+                        <Link to={`/policies/${policy.id}`}>
+                          <ChevronRight className="h-5 w-5" />
+                        </Link>
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => {
-                        if (confirm('Are you sure you want to delete this policy?')) {
-                          deleteMutation.mutate(policy.id)
-                        }
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" asChild>
-                      <Link to={`/policies/${policy.id}`}>
-                        <ChevronRight className="h-5 w-5" />
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No policies yet</h3>
-            <p className="text-gray-500 mb-4">
-              Generate your first policy to get started
-            </p>
-            <Button onClick={() => setGenerateDialogOpen(true)}>
-              <Wand2 className="h-4 w-4 mr-2" />
-              Generate Policy
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+                </CardContent>
+              </MagicBentoCard>
+            ))}
+          </div>
+        ) : (
+          <MagicBentoCard className="magic-bento-card--border-glow animate-fade-in" spotlightColor="132, 0, 255">
+            <CardContent className="py-12 text-center relative z-30">
+              <div className="bg-white/[0.02] w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5">
+                <FileText className="h-8 w-8 text-muted-foreground/30" />
+              </div>
+              <h3 className="text-xl font-bold text-foreground mb-2">No policies yet</h3>
+              <p className="text-muted-foreground/60 mb-6 max-w-sm mx-auto">
+                Generate your first policy to establish a solid compliance foundation for your organization.
+              </p>
+              <Button onClick={() => setGenerateDialogOpen(true)} className="btn-gradient shadow-lg">
+                <Wand2 className="h-4 w-4 mr-2" />
+                Generate First Policy
+              </Button>
+            </CardContent>
+          </MagicBentoCard>
+        )}
+      </MagicBentoGrid>
     </div>
   )
 }

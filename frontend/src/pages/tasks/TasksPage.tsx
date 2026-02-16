@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { tasksApi, controlsApi } from '@/lib/api'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { MagicBentoCard, MagicBentoGrid } from '@/components/ui/MagicBento'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -23,9 +24,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { 
-  Plus, 
-  CheckSquare, 
+import {
+  Plus,
+  CheckSquare,
   Search,
   Trash2,
   Calendar
@@ -122,7 +123,7 @@ export function TasksPage() {
   })
 
   const filteredTasks = tasks?.filter((task: any) => {
-    const matchesSearch = 
+    const matchesSearch =
       task.title.toLowerCase().includes(search.toLowerCase()) ||
       task.description?.toLowerCase().includes(search.toLowerCase())
     const matchesStatus = statusFilter === 'all' || task.status === statusFilter
@@ -151,8 +152,8 @@ export function TasksPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Tasks</h1>
-          <p className="text-gray-500">Track and manage compliance tasks</p>
+          <h1 className="text-2xl font-bold text-foreground">Tasks</h1>
+          <p className="text-muted-foreground">Track and manage compliance tasks</p>
         </div>
         <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
           <DialogTrigger asChild>
@@ -245,138 +246,147 @@ export function TasksPage() {
         </Dialog>
       </div>
 
-      {/* Filters */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search tasks..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-10"
-              />
+      <MagicBentoGrid className="space-y-6">
+        {/* Filters */}
+        <MagicBentoCard className="magic-bento-card--border-glow animate-fade-in" spotlightColor="132, 0, 255">
+          <CardContent className="pt-6 relative z-30">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search tasks..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full md:w-48">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="Pending">Pending</SelectItem>
+                  <SelectItem value="In Progress">In Progress</SelectItem>
+                  <SelectItem value="Completed">Completed</SelectItem>
+                  <SelectItem value="Blocked">Blocked</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="Pending">Pending</SelectItem>
-                <SelectItem value="In Progress">In Progress</SelectItem>
-                <SelectItem value="Completed">Completed</SelectItem>
-                <SelectItem value="Blocked">Blocked</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Tasks by Status */}
-      {filteredTasks && filteredTasks.length > 0 ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
-          {statusOrder.map((status) => (
-            <Card key={status}>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center justify-between">
-                  <span>{status}</span>
-                  <Badge variant="secondary">
-                    {tasksByStatus?.[status]?.length || 0}
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {tasksByStatus?.[status]?.map((task: any) => {
-                    const control = controls?.find((c: any) => c.id === task.control_id)
-                    return (
-                      <div
-                        key={task.id}
-                        className="p-3 bg-gray-50 rounded-lg border border-gray-100"
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-gray-900 text-sm truncate">
-                              {task.title}
-                            </p>
-                            {control && (
-                              <p className="text-xs text-primary font-mono mt-1">
-                                {control.control_code}
-                              </p>
-                            )}
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-red-500 h-6 w-6 p-0"
-                            onClick={() => {
-                              if (confirm('Delete this task?')) {
-                                deleteMutation.mutate(task.id)
-                              }
-                            }}
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                        
-                        <div className="flex items-center gap-2 mt-2">
-                          <Badge className={cn(getPriorityColor(task.priority), 'text-xs')}>
-                            {task.priority}
-                          </Badge>
-                          {task.due_date && (
-                            <span className="text-xs text-gray-500 flex items-center">
-                              <Calendar className="h-3 w-3 mr-1" />
-                              {formatDate(task.due_date)}
-                            </span>
-                          )}
-                        </div>
-                        
-                        <Select
-                          value={task.status}
-                          onValueChange={(status) =>
-                            updateMutation.mutate({ id: task.id, status })
-                          }
-                        >
-                          <SelectTrigger className="mt-2 h-8 text-xs">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Pending">Pending</SelectItem>
-                            <SelectItem value="In Progress">In Progress</SelectItem>
-                            <SelectItem value="Completed">Completed</SelectItem>
-                            <SelectItem value="Blocked">Blocked</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )
-                  })}
-                  {(!tasksByStatus?.[status] || tasksByStatus[status].length === 0) && (
-                    <p className="text-sm text-gray-400 text-center py-4">
-                      No tasks
-                    </p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <CheckSquare className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks yet</h3>
-            <p className="text-gray-500 mb-4">
-              Create your first task to track compliance activities
-            </p>
-            <Button onClick={() => setCreateDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Create Task
-            </Button>
           </CardContent>
-        </Card>
-      )}
+        </MagicBentoCard>
+
+        {/* Tasks by Status */}
+        {filteredTasks && filteredTasks.length > 0 ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+            {statusOrder.map((status, index) => {
+              return (
+                <MagicBentoCard
+                  key={status}
+                  className="magic-bento-card--border-glow animate-fade-in min-h-[400px] flex flex-col"
+                  style={{ animationDelay: `${(index + 1) * 100}ms` }}
+                  spotlightColor="132, 0, 255"
+                >
+                  <CardHeader className="pb-3 relative z-30">
+                    <CardTitle className="text-lg flex items-center justify-between font-bold">
+                      <span>{status}</span>
+                      <Badge variant="secondary" className="bg-white/5 border-white/5 text-muted-foreground/80 font-medium">
+                        {tasksByStatus?.[status]?.length || 0}
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="relative z-30 flex-1">
+                    <div className="space-y-3">
+                      {tasksByStatus?.[status]?.map((task: any) => {
+                        const control = controls?.find((c: any) => c.id === task.control_id)
+                        return (
+                          <div
+                            key={task.id}
+                            className="p-3 bg-white/5 rounded-xl border border-white/5"
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1 min-w-0">
+                                <p className="font-semibold text-foreground text-sm truncate">
+                                  {task.title}
+                                </p>
+                                {control && (
+                                  <p className="text-xs text-primary font-mono mt-1 opacity-80">
+                                    {control.control_code}
+                                  </p>
+                                )}
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-red-500/60 hover:text-red-500 hover:bg-red-500/10 h-6 w-6 p-0 transition-all"
+                                onClick={() => {
+                                  if (confirm('Delete this task?')) {
+                                    deleteMutation.mutate(task.id)
+                                  }
+                                }}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+
+                            <div className="flex items-center gap-2 mt-3">
+                              <Badge className={cn(getPriorityColor(task.priority), 'text-[10px] uppercase font-bold tracking-wider px-1.5 py-0')}>
+                                {task.priority}
+                              </Badge>
+                              {task.due_date && (
+                                <span className="text-[10px] text-muted-foreground/60 flex items-center font-medium">
+                                  <Calendar className="h-2.5 w-2.5 mr-1" />
+                                  {formatDate(task.due_date)}
+                                </span>
+                              )}
+                            </div>
+
+                            <Select
+                              value={task.status}
+                              onValueChange={(status) =>
+                                updateMutation.mutate({ id: task.id, status })
+                              }
+                            >
+                              <SelectTrigger className="mt-3 h-8 text-xs bg-white/5 border-white/10 rounded-lg">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent className="bg-card border-white/10">
+                                <SelectItem value="Pending">Pending</SelectItem>
+                                <SelectItem value="In Progress">In Progress</SelectItem>
+                                <SelectItem value="Completed">Completed</SelectItem>
+                                <SelectItem value="Blocked">Blocked</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )
+                      })}
+                      {(!tasksByStatus?.[status] || tasksByStatus[status].length === 0) && (
+                        <p className="text-sm text-muted-foreground/40 text-center py-8 italic">
+                          No tasks
+                        </p>
+                      )}
+                    </div>
+                  </CardContent>
+                </MagicBentoCard>
+              );
+            })}
+          </div>
+        ) : (
+          <MagicBentoCard className="magic-bento-card--border-glow animate-fade-in" spotlightColor="132, 0, 255">
+            <CardContent className="py-12 text-center relative z-30">
+              <CheckSquare className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-foreground mb-2">No tasks yet</h3>
+              <p className="text-muted-foreground/60 mb-6 max-w-sm mx-auto">
+                Create your first task to track compliance activities and stay audit-ready.
+              </p>
+              <Button onClick={() => setCreateDialogOpen(true)} className="btn-gradient shadow-lg">
+                <Plus className="h-4 w-4 mr-2" />
+                Create First Task
+              </Button>
+            </CardContent>
+          </MagicBentoCard>
+        )}
+      </MagicBentoGrid>
     </div>
   )
 }

@@ -78,42 +78,48 @@ async def get_organization_stats(
     from app.db.models.policy import Policy
     from app.db.models.evidence import Evidence
     from app.db.models.task import Task
+    from sqlalchemy import func
 
     org_id = current_user.organization_id
 
-    # Count policies
-    policies_result = await db.execute(
-        select(Policy).where(Policy.organization_id == org_id)
-    )
-    policies = policies_result.scalars().all()
-
-    # Count evidence
-    evidence_result = await db.execute(
-        select(Evidence).where(Evidence.organization_id == org_id)
-    )
-    evidence = evidence_result.scalars().all()
-
-    # Count tasks
-    tasks_result = await db.execute(
-        select(Task).where(Task.organization_id == org_id)
-    )
-    tasks = tasks_result.scalars().all()
-
-    # Count controls
-    controls_result = await db.execute(select(Control))
-    controls = controls_result.scalars().all()
-
-    pending_tasks = len([t for t in tasks if t.status == "Pending"])
-    completed_tasks = len([t for t in tasks if t.status == "Completed"])
+    # Use database-level counts for better performance
+    total_controls = (await db.execute(select(func.count(Control.id)))).scalar() or 0
+    
+    # Policies stats
+    total_policies = (await db.execute(
+        select(func.count(Policy.id)).where(Policy.organization_id == org_id)
+    )).scalar() or 0
+    approved_policies = (await db.execute(
+        select(func.count(Policy.id)).where(Policy.organization_id == org_id, Policy.status == "Approved")
+    )).scalar() or 0
+    
+    # Evidence stats
+    total_evidence = (await db.execute(
+        select(func.count(Evidence.id)).where(Evidence.organization_id == org_id)
+    )).scalar() or 0
+    accepted_evidence = (await db.execute(
+        select(func.count(Evidence.id)).where(Evidence.organization_id == org_id, Evidence.status == "Accepted")
+    )).scalar() or 0
+    
+    # Tasks stats
+    total_tasks = (await db.execute(
+        select(func.count(Task.id)).where(Task.organization_id == org_id)
+    )).scalar() or 0
+    pending_tasks = (await db.execute(
+        select(func.count(Task.id)).where(Task.organization_id == org_id, Task.status == "Pending")
+    )).scalar() or 0
+    completed_tasks = (await db.execute(
+        select(func.count(Task.id)).where(Task.organization_id == org_id, Task.status == "Completed")
+    )).scalar() or 0
 
     return {
-        "total_controls": len(controls),
-        "total_policies": len(policies),
-        "approved_policies": len([p for p in policies if p.status == "Approved"]),
-        "total_evidence": len(evidence),
-        "accepted_evidence": len([e for e in evidence if e.status == "Accepted"]),
-        "total_tasks": len(tasks),
+        "total_controls": total_controls,
+        "total_policies": total_policies,
+        "approved_policies": approved_policies,
+        "total_evidence": total_evidence,
+        "accepted_evidence": accepted_evidence,
+        "total_tasks": total_tasks,
         "pending_tasks": pending_tasks,
         "completed_tasks": completed_tasks,
-        "completion_percentage": round((completed_tasks / len(tasks) * 100) if tasks else 0, 1)
+        "completion_percentage": round((completed_tasks / total_tasks * 100) if total_tasks else 0, 1)
     }

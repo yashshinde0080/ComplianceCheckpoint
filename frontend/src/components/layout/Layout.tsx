@@ -13,7 +13,6 @@ import {
   Menu,
   X,
   Bell,
-  Search,
   LogOut,
   User,
 } from 'lucide-react'
@@ -46,7 +45,7 @@ export function Layout({ children }: LayoutProps) {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: '#f1f5f9' }}>
+    <div className="min-h-screen bg-background">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
@@ -59,19 +58,18 @@ export function Layout({ children }: LayoutProps) {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 w-64 transform transition-all duration-300 ease-in-out lg:translate-x-0',
+          'fixed inset-y-0 left-0 z-50 w-64 transform transition-all duration-300 ease-in-out lg:translate-x-0 bg-card border-r border-border shadow-2xl',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         )}
-        style={{ background: 'white', borderRight: '1px solid #e2e8f0', boxShadow: '4px 0 6px -1px rgba(0, 0, 0, 0.1)' }}
       >
         <div className="flex h-full flex-col">
           {/* Logo */}
-          <div className="flex h-16 items-center justify-between px-4" style={{ borderBottom: '1px solid #e2e8f0' }}>
+          <div className="flex h-16 items-center justify-between px-4 border-b border-border">
             <Link to="/dashboard" className="flex items-center space-x-3 group">
-              <div className="p-2 rounded-lg transition-colors" style={{ background: 'rgba(59, 130, 246, 0.1)' }}>
-                <Shield className="h-6 w-6" style={{ color: '#3b82f6' }} />
+              <div className="p-2 rounded-lg transition-colors bg-primary/10">
+                <Shield className="h-6 w-6 text-primary" />
               </div>
-              <span className="text-lg font-bold" style={{ color: '#0f172a' }}>ComplianceCP</span>
+              <span className="text-lg font-bold text-foreground">ComplianceCP</span>
             </Link>
             <Button
               variant="ghost"
@@ -91,14 +89,10 @@ export function Layout({ children }: LayoutProps) {
                 <Link
                   key={item.name}
                   to={item.href}
-                  className="sidebar-link"
-                  style={isActive ? {
-                    background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                    color: 'white',
-                    boxShadow: '0 4px 12px -2px rgba(59, 130, 246, 0.4)'
-                  } : {
-                    color: '#64748b'
-                  }}
+                  className={cn(
+                    "sidebar-link transition-colors",
+                    isActive ? "bg-primary text-primary-foreground shadow-glow" : "text-muted-foreground hover:bg-white/5"
+                  )}
                   onClick={() => setSidebarOpen(false)}
                 >
                   <item.icon className="h-5 w-5" />
@@ -109,19 +103,18 @@ export function Layout({ children }: LayoutProps) {
           </nav>
 
           {/* User info */}
-          <div className="p-4" style={{ borderTop: '1px solid #e2e8f0' }}>
+          <div className="p-4 border-t border-border">
             <div className="flex items-center gap-3 mb-3">
-              <div 
-                className="h-10 w-10 rounded-full flex items-center justify-center"
-                style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' }}
+              <div
+                className="h-10 w-10 rounded-full flex items-center justify-center bg-primary"
               >
-                <User className="h-5 w-5 text-white" />
+                <User className="h-5 w-5 text-primary-foreground" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate" style={{ color: '#0f172a' }}>
+                <p className="text-sm font-medium truncate text-foreground">
                   {user?.full_name || 'User'}
                 </p>
-                <p className="text-xs truncate" style={{ color: '#64748b' }}>
+                <p className="text-xs truncate text-muted-foreground">
                   {user?.email || ''}
                 </p>
               </div>
@@ -142,13 +135,8 @@ export function Layout({ children }: LayoutProps) {
       {/* Main content */}
       <div className="lg:pl-64 min-h-screen flex flex-col">
         {/* Top bar */}
-        <header 
-          className="sticky top-0 z-30"
-          style={{ 
-            background: 'rgba(255, 255, 255, 0.9)', 
-            backdropFilter: 'blur(8px)',
-            borderBottom: '1px solid #e2e8f0'
-          }}
+        <header
+          className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border"
         >
           <div className="flex h-16 items-center justify-between px-4 lg:px-6">
             <div className="flex items-center gap-4">
@@ -160,39 +148,23 @@ export function Layout({ children }: LayoutProps) {
               >
                 <Menu className="h-5 w-5" />
               </Button>
-              
-              {/* Search bar */}
-              <div 
-                className="hidden md:flex items-center gap-2 rounded-lg px-3 py-2 w-64 lg:w-80"
-                style={{ background: '#f1f5f9' }}
-              >
-                <Search className="h-4 w-4" style={{ color: '#94a3b8' }} />
-                <input 
-                  type="text" 
-                  placeholder="Search..." 
-                  className="bg-transparent border-none outline-none text-sm w-full"
-                  style={{ color: '#0f172a' }}
-                />
-              </div>
             </div>
-            
+
             <div className="flex items-center gap-2">
               {/* Notification bell */}
               <Button variant="ghost" size="icon" className="relative">
-                <Bell className="h-5 w-5" style={{ color: '#64748b' }} />
-                <span 
-                  className="absolute top-1 right-1 h-2 w-2 rounded-full animate-pulse"
-                  style={{ background: '#ef4444' }}
+                <Bell className="h-5 w-5 text-muted-foreground" />
+                <span
+                  className="absolute top-1 right-1 h-2 w-2 rounded-full animate-pulse bg-destructive"
                 />
               </Button>
-              
+
               {/* User avatar for mobile */}
               <div className="lg:hidden">
-                <div 
-                  className="h-8 w-8 rounded-full flex items-center justify-center"
-                  style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' }}
+                <div
+                  className="h-8 w-8 rounded-full flex items-center justify-center bg-primary"
                 >
-                  <User className="h-4 w-4 text-white" />
+                  <User className="h-4 w-4 text-primary-foreground" />
                 </div>
               </div>
             </div>
@@ -205,8 +177,8 @@ export function Layout({ children }: LayoutProps) {
         </main>
 
         {/* Footer */}
-        <footer style={{ borderTop: '1px solid #e2e8f0' }} className="py-4 px-6">
-          <p className="text-xs text-center" style={{ color: '#94a3b8' }}>
+        <footer className="py-4 px-6 border-t border-border">
+          <p className="text-xs text-center text-muted-foreground">
             © 2026 ComplianceCheckpoint. All rights reserved.
           </p>
         </footer>

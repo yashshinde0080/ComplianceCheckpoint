@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { policiesApi } from '@/lib/api'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { MagicBentoCard } from '@/components/ui/MagicBento'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -102,10 +103,10 @@ export function PolicyDetailPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-start justify-between">
-        <div>
+        <div className="flex-1 min-w-0">
           <Link
             to="/policies"
-            className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-2"
+            className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-2 transition-colors uppercase tracking-widest font-bold"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back to Policies
@@ -114,48 +115,50 @@ export function PolicyDetailPage() {
             <Input
               value={editedTitle}
               onChange={(e) => setEditedTitle(e.target.value)}
-              className="text-2xl font-bold mt-2"
+              className="text-2xl md:text-3xl font-bold mt-2 bg-white/5 border-white/10"
             />
           ) : (
-            <h1 className="text-2xl font-bold text-gray-900">{policy.title}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground mt-2 tracking-tight">{policy.title}</h1>
           )}
-          <div className="flex items-center gap-3 mt-2">
+          <div className="flex flex-wrap items-center gap-4 mt-4">
             {isEditing ? (
               <Select value={editedStatus} onValueChange={setEditedStatus}>
-                <SelectTrigger className="w-36">
+                <SelectTrigger className="w-40 bg-white/5 border-white/10">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-card border-white/10">
                   <SelectItem value="Draft">Draft</SelectItem>
                   <SelectItem value="Under Review">Under Review</SelectItem>
                   <SelectItem value="Approved">Approved</SelectItem>
                 </SelectContent>
               </Select>
             ) : (
-              <Badge className={cn(getStatusColor(policy.status))}>
+              <Badge className={cn(getStatusColor(policy.status), 'px-3 py-1 uppercase text-[10px] font-bold tracking-wider')}>
                 {policy.status}
               </Badge>
             )}
-            <span className="text-sm text-gray-500">Version {policy.version}</span>
-            <span className="text-sm text-gray-500">
-              Last updated {formatDateTime(policy.updated_at)}
-            </span>
+            <div className="flex items-center gap-4 text-xs font-medium text-muted-foreground/60">
+              <span className="bg-white/5 px-2 py-0.5 rounded border border-white/5">v{policy.version}</span>
+              <span className="flex items-center italic">
+                Last updated {formatDateTime(policy.updated_at)}
+              </span>
+            </div>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           {isEditing ? (
             <>
-              <Button variant="outline" onClick={handleCancel}>
+              <Button variant="outline" onClick={handleCancel} className="border-white/10 hover:bg-white/5">
                 <X className="h-4 w-4 mr-2" />
                 Cancel
               </Button>
-              <Button onClick={handleSave} disabled={updateMutation.isPending}>
+              <Button onClick={handleSave} disabled={updateMutation.isPending} className="btn-gradient shadow-lg">
                 <Save className="h-4 w-4 mr-2" />
                 {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
               </Button>
             </>
           ) : (
-            <Button onClick={handleStartEdit}>
+            <Button onClick={handleStartEdit} className="btn-gradient shadow-lg">
               <Edit className="h-4 w-4 mr-2" />
               Edit Policy
             </Button>
@@ -164,29 +167,29 @@ export function PolicyDetailPage() {
       </div>
 
       {/* Content */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <FileText className="h-5 w-5 mr-2" />
-            Policy Content
+      <MagicBentoCard className="magic-bento-card--border-glow border-white/5" spotlightColor="132, 0, 255">
+        <CardHeader className="relative z-30">
+          <CardTitle className="flex items-center font-bold text-lg">
+            <FileText className="h-5 w-5 mr-2 text-primary" />
+            Document Viewer
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="relative z-30">
           {isEditing ? (
             <Textarea
               value={editedContent}
               onChange={(e) => setEditedContent(e.target.value)}
-              className="min-h-[600px] font-mono text-sm"
+              className="min-h-[600px] font-mono text-sm bg-white/[0.02] border-white/10 p-6 leading-relaxed focus:bg-white/[0.04] transition-colors"
             />
           ) : (
-            <div className="prose prose-sm max-w-none">
-              <pre className="whitespace-pre-wrap font-sans text-gray-700 bg-gray-50 p-6 rounded-lg">
+            <div className="prose prose-sm prose-invert max-w-none">
+              <div className="whitespace-pre-wrap font-sans text-muted-foreground/90 bg-white/[0.02] border border-white/5 p-8 rounded-2xl leading-loose tracking-wide">
                 {policy.content}
-              </pre>
+              </div>
             </div>
           )}
         </CardContent>
-      </Card>
+      </MagicBentoCard>
     </div>
   )
 }

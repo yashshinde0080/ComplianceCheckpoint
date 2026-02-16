@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { controlsApi, evidenceApi, tasksApi } from '@/lib/api'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { MagicBentoCard } from '@/components/ui/MagicBento'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -25,12 +26,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { 
-  ArrowLeft, 
-  Upload, 
-  Plus, 
-  FileText, 
-  CheckCircle, 
+import {
+  ArrowLeft,
+  Upload,
+  Plus,
+  FileText,
+  CheckCircle,
   XCircle,
   Clock
 } from 'lucide-react'
@@ -200,7 +201,7 @@ export function ControlDetailPage() {
         <div>
           <Link
             to="/controls"
-            className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-2"
+            className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-2 transition-colors"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back to Controls
@@ -209,40 +210,46 @@ export function ControlDetailPage() {
             <span className="font-mono text-lg font-bold text-primary">
               {control.control_code}
             </span>
-            <Badge className={cn(getSeverityColor(control.severity))}>
+            <Badge className={cn(getSeverityColor(control.severity), 'text-xs uppercase font-bold tracking-wider')}>
               {control.severity}
             </Badge>
-            <Badge className={cn(getStatusColor(control.completion_status))}>
+            <Badge className={cn(getStatusColor(control.completion_status), 'text-xs uppercase font-bold tracking-wider')}>
               {control.completion_status}
             </Badge>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mt-2">{control.title}</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mt-3 tracking-tight">{control.title}</h1>
         </div>
       </div>
 
       {/* Control Details */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Description</CardTitle>
+      <MagicBentoCard className="magic-bento-card--border-glow border-white/5" spotlightColor="132, 0, 255">
+        <CardHeader className="relative z-30">
+          <CardTitle className="text-lg font-bold">Control Description</CardTitle>
         </CardHeader>
-        <CardContent>
-          <p className="text-gray-700">{control.description}</p>
-          
+        <CardContent className="relative z-30 space-y-6">
+          <p className="text-muted-foreground leading-relaxed">{control.description}</p>
+
           {control.guidance_text && (
-            <div className="mt-6">
-              <h4 className="font-medium text-gray-900 mb-2">Implementation Guidance</h4>
-              <p className="text-gray-600 text-sm">{control.guidance_text}</p>
+            <div className="p-4 bg-white/[0.02] border border-white/[0.05] rounded-xl">
+              <h4 className="font-bold text-foreground text-sm mb-2 flex items-center gap-2">
+                <FileText className="h-4 w-4 text-primary" />
+                Implementation Guidance
+              </h4>
+              <p className="text-muted-foreground/80 text-sm leading-relaxed">{control.guidance_text}</p>
             </div>
           )}
-          
+
           {control.evidence_guidance && (
-            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-              <h4 className="font-medium text-blue-900 mb-2">Evidence Requirements</h4>
-              <p className="text-blue-800 text-sm">{control.evidence_guidance}</p>
+            <div className="p-4 bg-primary/5 border border-primary/10 rounded-xl">
+              <h4 className="font-bold text-primary text-sm mb-2 flex items-center gap-2">
+                <Upload className="h-4 w-4" />
+                Evidence Requirements
+              </h4>
+              <p className="text-primary/70 text-sm leading-relaxed font-medium">{control.evidence_guidance}</p>
             </div>
           )}
         </CardContent>
-      </Card>
+      </MagicBentoCard>
 
       {/* Tabs for Evidence and Tasks */}
       <Tabs defaultValue="evidence">
@@ -256,44 +263,46 @@ export function ControlDetailPage() {
         </TabsList>
 
         <TabsContent value="evidence" className="mt-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+          <MagicBentoCard className="magic-bento-card--border-glow border-white/5" spotlightColor="132, 0, 255">
+            <CardHeader className="relative z-30 flex flex-row items-center justify-between">
               <div>
-                <CardTitle>Evidence</CardTitle>
-                <CardDescription>
-                  Upload documents and artifacts that demonstrate control implementation
+                <CardTitle className="text-lg font-bold">Evidence Library</CardTitle>
+                <CardDescription className="text-muted-foreground/60">
+                  Documents verifying control implementation
                 </CardDescription>
               </div>
               <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button>
+                  <Button className="btn-gradient shadow-lg">
                     <Upload className="h-4 w-4 mr-2" />
-                    Upload Evidence
+                    Upload
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="bg-card border-white/10">
                   <DialogHeader>
                     <DialogTitle>Upload Evidence</DialogTitle>
-                    <DialogDescription>
+                    <DialogDescription className="text-muted-foreground/60">
                       Upload a file as evidence for this control
                     </DialogDescription>
                   </DialogHeader>
                   <form onSubmit={handleUpload}>
                     <div className="space-y-4 py-4">
                       <div className="space-y-2">
-                        <Label htmlFor="file">File</Label>
+                        <Label htmlFor="file" className="text-foreground">File</Label>
                         <Input
                           id="file"
                           type="file"
+                          className="bg-white/5 border-white/10"
                           onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
                           required
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="description">Description</Label>
+                        <Label htmlFor="description" className="text-foreground">Description</Label>
                         <Textarea
                           id="description"
                           name="description"
+                          className="bg-white/5 border-white/10"
                           placeholder="Describe what this evidence demonstrates..."
                         />
                       </div>
@@ -302,47 +311,48 @@ export function ControlDetailPage() {
                       <Button
                         type="button"
                         variant="outline"
+                        className="border-white/10 hover:bg-white/5"
                         onClick={() => setUploadDialogOpen(false)}
                       >
                         Cancel
                       </Button>
-                      <Button type="submit" disabled={uploadMutation.isPending}>
-                        {uploadMutation.isPending ? 'Uploading...' : 'Upload'}
+                      <Button type="submit" className="btn-gradient" disabled={uploadMutation.isPending}>
+                        {uploadMutation.isPending ? 'Uploading...' : 'Upload Evidence'}
                       </Button>
                     </DialogFooter>
                   </form>
                 </DialogContent>
               </Dialog>
             </CardHeader>
-            <CardContent>
+            <CardContent className="relative z-30">
               {evidence && evidence.length > 0 ? (
-                <div className="divide-y">
+                <div className="divide-y divide-white/5">
                   {evidence.map((item: any) => (
-                    <div key={item.id} className="py-4 flex items-center justify-between">
+                    <div key={item.id} className="py-4 flex items-center justify-between group/item">
                       <div className="flex items-center space-x-4">
-                        <div className="p-2 bg-gray-100 rounded">
-                          <FileText className="h-5 w-5 text-gray-600" />
+                        <div className="p-2.5 bg-white/5 rounded-xl border border-white/5 transition-colors group-hover/item:border-primary/30">
+                          <FileText className="h-5 w-5 text-muted-foreground/80 group-hover/item:text-primary transition-colors" />
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">{item.file_name}</p>
-                          <p className="text-sm text-gray-500">
-                            Uploaded {formatDateTime(item.created_at)} • Version {item.version}
+                          <p className="font-semibold text-foreground">{item.file_name}</p>
+                          <p className="text-xs text-muted-foreground/60 font-medium">
+                            {formatDateTime(item.created_at)} • Version {item.version}
                           </p>
                           {item.description && (
-                            <p className="text-sm text-gray-600 mt-1">{item.description}</p>
+                            <p className="text-sm text-muted-foreground/80 mt-1.5 leading-relaxed">{item.description}</p>
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge className={cn(getStatusColor(item.status))}>
+                      <div className="flex items-center gap-3">
+                        <Badge className={cn(getStatusColor(item.status), 'uppercase text-[10px] font-bold tracking-wider px-2')}>
                           {item.status}
                         </Badge>
                         {item.status === 'Pending' && (
-                          <>
+                          <div className="flex items-center bg-white/5 rounded-lg p-0.5 border border-white/5">
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="text-green-600"
+                              className="text-green-500/80 hover:text-green-500 hover:bg-green-500/10 h-7 w-7 p-0 transition-all"
                               onClick={() =>
                                 updateEvidenceStatusMutation.mutate({
                                   evidenceId: item.id,
@@ -355,7 +365,7 @@ export function ControlDetailPage() {
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="text-red-600"
+                              className="text-red-500/80 hover:text-red-500 hover:bg-red-500/10 h-7 w-7 p-0 transition-all"
                               onClick={() =>
                                 updateEvidenceStatusMutation.mutate({
                                   evidenceId: item.id,
@@ -365,85 +375,90 @@ export function ControlDetailPage() {
                             >
                               <XCircle className="h-4 w-4" />
                             </Button>
-                          </>
+                          </div>
                         )}
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8">
-                  <Upload className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">No evidence uploaded yet</p>
-                  <p className="text-sm text-gray-400 mt-1">
-                    Upload documents to demonstrate control compliance
+                <div className="text-center py-12">
+                  <div className="bg-white/[0.02] w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5">
+                    <Upload className="h-8 w-8 text-muted-foreground/30" />
+                  </div>
+                  <p className="text-foreground font-bold italic">No evidence uploaded yet</p>
+                  <p className="text-sm text-muted-foreground/60 mt-2 max-w-[240px] mx-auto leading-relaxed">
+                    Upload documents to demonstrate control compliance and satisfy auditors.
                   </p>
                 </div>
               )}
             </CardContent>
-          </Card>
+          </MagicBentoCard>
         </TabsContent>
 
         <TabsContent value="tasks" className="mt-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+          <MagicBentoCard className="magic-bento-card--border-glow border-white/5" spotlightColor="132, 0, 255">
+            <CardHeader className="relative z-30 flex flex-row items-center justify-between">
               <div>
-                <CardTitle>Tasks</CardTitle>
-                <CardDescription>
-                  Track implementation tasks for this control
+                <CardTitle className="text-lg font-bold">Implementation Tasks</CardTitle>
+                <CardDescription className="text-muted-foreground/60">
+                  Step-by-step actions to fulfill this control
                 </CardDescription>
               </div>
               <Dialog open={taskDialogOpen} onOpenChange={setTaskDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button>
+                  <Button className="btn-gradient shadow-lg">
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Task
+                    New Task
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="bg-card border-white/10">
                   <DialogHeader>
                     <DialogTitle>Create Task</DialogTitle>
-                    <DialogDescription>
-                      Create a new task for implementing this control
+                    <DialogDescription className="text-muted-foreground/60">
+                      Outline an internal task to complete this requirement
                     </DialogDescription>
                   </DialogHeader>
                   <form onSubmit={taskForm.handleSubmit(handleCreateTask)}>
                     <div className="space-y-4 py-4">
                       <div className="space-y-2">
-                        <Label htmlFor="title">Title</Label>
+                        <Label htmlFor="title" className="text-foreground">Title</Label>
                         <Input
                           id="title"
+                          className="bg-white/5 border-white/10"
                           {...taskForm.register('title', { required: true })}
                           placeholder="Task title"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="description">Description</Label>
+                        <Label htmlFor="description" className="text-foreground">Description</Label>
                         <Textarea
                           id="description"
+                          className="bg-white/5 border-white/10"
                           {...taskForm.register('description')}
                           placeholder="Task description..."
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="due_date">Due Date</Label>
+                          <Label htmlFor="due_date" className="text-foreground">Due Date</Label>
                           <Input
                             id="due_date"
                             type="date"
+                            className="bg-white/5 border-white/10"
                             {...taskForm.register('due_date')}
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="priority">Priority</Label>
+                          <Label htmlFor="priority" className="text-foreground">Priority</Label>
                           <Select
                             value={taskForm.watch('priority')}
                             onValueChange={(value) => taskForm.setValue('priority', value)}
                           >
-                            <SelectTrigger>
+                            <SelectTrigger className="bg-white/5 border-white/10">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="bg-card border-white/10">
                               <SelectItem value="Low">Low</SelectItem>
                               <SelectItem value="Medium">Medium</SelectItem>
                               <SelectItem value="High">High</SelectItem>
@@ -456,48 +471,51 @@ export function ControlDetailPage() {
                       <Button
                         type="button"
                         variant="outline"
+                        className="border-white/10 hover:bg-white/5"
                         onClick={() => setTaskDialogOpen(false)}
                       >
                         Cancel
                       </Button>
-                      <Button type="submit" disabled={createTaskMutation.isPending}>
-                        {createTaskMutation.isPending ? 'Creating...' : 'Create Task'}
+                      <Button type="submit" className="btn-gradient" disabled={createTaskMutation.isPending}>
+                        {createTaskMutation.isPending ? 'Creating...' : 'Add Task'}
                       </Button>
                     </DialogFooter>
                   </form>
                 </DialogContent>
               </Dialog>
             </CardHeader>
-            <CardContent>
+            <CardContent className="relative z-30">
               {tasks && tasks.length > 0 ? (
-                <div className="divide-y">
+                <div className="divide-y divide-white/5">
                   {tasks.map((task: any) => (
-                    <div key={task.id} className="py-4">
+                    <div key={task.id} className="py-4 group/task">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
-                            <h4 className="font-medium text-gray-900">{task.title}</h4>
-                            <Badge className={cn(getStatusColor(task.status), 'text-xs')}>
+                            <h4 className="font-semibold text-foreground">{task.title}</h4>
+                            <Badge className={cn(getStatusColor(task.status), 'uppercase text-[9px] font-bold tracking-tight')}>
                               {task.status}
-                            </Badge>
-                            <Badge className={cn(
-                              task.priority === 'High' ? 'bg-red-100 text-red-800' :
-                              task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-green-100 text-green-800',
-                              'text-xs'
-                            )}>
-                              {task.priority}
                             </Badge>
                           </div>
                           {task.description && (
-                            <p className="text-sm text-gray-600 mt-1">{task.description}</p>
+                            <p className="text-sm text-muted-foreground/80 mt-1.5 leading-relaxed">{task.description}</p>
                           )}
-                          {task.due_date && (
-                            <p className="text-xs text-gray-400 mt-2 flex items-center">
-                              <Clock className="h-3 w-3 mr-1" />
-                              Due: {formatDate(task.due_date)}
-                            </p>
-                          )}
+                          <div className="flex items-center gap-4 mt-3">
+                            <Badge className={cn(
+                              task.priority === 'High' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
+                                task.priority === 'Medium' ? 'bg-yellow-500/10 text-yellow-500/80 border-yellow-500/20' :
+                                  'bg-green-500/10 text-green-400 border-green-500/20',
+                              'text-[10px] font-bold tracking-wider'
+                            )}>
+                              {task.priority}
+                            </Badge>
+                            {task.due_date && (
+                              <p className="text-[11px] text-muted-foreground/40 font-medium flex items-center">
+                                <Clock className="h-2.5 w-2.5 mr-1" />
+                                {formatDate(task.due_date)}
+                              </p>
+                            )}
+                          </div>
                         </div>
                         <Select
                           value={task.status}
@@ -505,10 +523,10 @@ export function ControlDetailPage() {
                             updateTaskMutation.mutate({ taskId: task.id, status })
                           }
                         >
-                          <SelectTrigger className="w-36">
+                          <SelectTrigger className="w-32 h-8 text-xs bg-white/5 border-white/10 group-hover/task:border-primary/40 transition-colors">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-card border-white/10">
                             <SelectItem value="Pending">Pending</SelectItem>
                             <SelectItem value="In Progress">In Progress</SelectItem>
                             <SelectItem value="Completed">Completed</SelectItem>
@@ -520,16 +538,18 @@ export function ControlDetailPage() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8">
-                  <CheckCircle className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">No tasks created yet</p>
-                  <p className="text-sm text-gray-400 mt-1">
-                    Create tasks to track control implementation
+                <div className="text-center py-12">
+                  <div className="bg-white/[0.02] w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5">
+                    <CheckCircle className="h-8 w-8 text-muted-foreground/30" />
+                  </div>
+                  <p className="text-foreground font-bold italic">No tasks created yet</p>
+                  <p className="text-sm text-muted-foreground/60 mt-2 max-w-[240px] mx-auto leading-relaxed">
+                    Create internal tasks to track your journey toward full compliance.
                   </p>
                 </div>
               )}
             </CardContent>
-          </Card>
+          </MagicBentoCard>
         </TabsContent>
       </Tabs>
     </div>

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func, case
 from typing import List, Optional
 
 from app.db.session import get_db
@@ -23,7 +23,43 @@ async def list_controls(
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
 ):
-    query = select(Control)
+    # Subquery for evidence counts
+    evidence_counts = (
+        select(
+            Evidence.control_id,
+            func.count(Evidence.id).label("count")
+        )
+        .where(Evidence.organization_id == current_user.organization_id)
+        .group_by(Evidence.control_id)
+        .subquery()
+    )
+
+    # Subquery for task information
+    task_info = (
+        select(
+            Task.control_id,
+            func.count(Task.id).label("count"),
+            # Count tasks that are NOT completed
+            func.count(case((Task.status != "Completed", 1))).label("uncompleted_count"),
+            # Count tasks that are In Progress
+            func.count(case((Task.status == "In Progress", 1))).label("in_progress_count")
+        )
+        .where(Task.organization_id == current_user.organization_id)
+        .group_by(Task.control_id)
+        .subquery()
+    )
+
+    query = (
+        select(
+            Control,
+            func.coalesce(evidence_counts.c.count, 0).label("evidence_count"),
+            func.coalesce(task_info.c.count, 0).label("task_count"),
+            func.coalesce(task_info.c.uncompleted_count, 0).label("uncompleted_count"),
+            func.coalesce(task_info.c.in_progress_count, 0).label("in_progress_count")
+        )
+        .outerjoin(evidence_counts, Control.id == evidence_counts.c.control_id)
+        .outerjoin(task_info, Control.id == task_info.c.control_id)
+    )
 
     if framework:
         query = query.join(Framework).where(Framework.name.ilike(f"%{framework}%"))
@@ -32,52 +68,35 @@ async def list_controls(
         query = query.where(Control.category.ilike(f"%{category}%"))
 
     result = await db.execute(query.order_by(Control.control_code))
-    controls = result.scalars().all()
+    rows = result.all()
 
-    # Get evidence and task counts for each control
     controls_with_status = []
-    for control in controls:
-        evidence_result = await db.execute(
-            select(Evidence).where(
-                Evidence.control_id == control.id,
-                Evidence.organization_id == current_user.organization_id
-            )
-        )
-        evidence_count = len(evidence_result.scalars().all())
-
-        task_result = await db.execute(
-            select(Task).where(
-                Task.control_id == control.id,
-                Task.organization_id == current_user.organization_id
-            )
-        )
-        tasks = task_result.scalars().all()
-        task_count = len(tasks)
-
-        # Determine completion status
-        if evidence_count > 0 and all(t.status == "Completed" for t in tasks):
+    for row in rows:
+        control, evidence_count, task_count, uncompleted_count, in_progress_count = row
+        
+        # Determine completion status based on business logic
+        if evidence_count > 0 and uncompleted_count == 0:
             completion_status = "Completed"
-        elif evidence_count > 0 or any(t.status == "In Progress" for t in tasks):
+        elif evidence_count > 0 or in_progress_count > 0:
             completion_status = "In Progress"
         else:
             completion_status = "Not Started"
 
-        control_dict = {
-            "id": control.id,
-            "framework_id": control.framework_id,
-            "control_code": control.control_code,
-            "title": control.title,
-            "description": control.description,
-            "category": control.category,
-            "severity": control.severity,
-            "guidance_text": control.guidance_text,
-            "evidence_guidance": control.evidence_guidance,
-            "created_at": control.created_at,
-            "evidence_count": evidence_count,
-            "task_count": task_count,
-            "completion_status": completion_status
-        }
-        controls_with_status.append(ControlWithStatus(**control_dict))
+        controls_with_status.append(ControlWithStatus(
+            id=control.id,
+            framework_id=control.framework_id,
+            control_code=control.control_code,
+            title=control.title,
+            description=control.description,
+            category=control.category,
+            severity=control.severity,
+            guidance_text=control.guidance_text,
+            evidence_guidance=control.evidence_guidance,
+            created_at=control.created_at,
+            evidence_count=evidence_count,
+            task_count=task_count,
+            completion_status=completion_status
+        ))
 
     return controls_with_status
 
@@ -88,37 +107,62 @@ async def get_control(
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
 ):
-    result = await db.execute(select(Control).where(Control.id == control_id))
-    control = result.scalar_one_or_none()
+    # We can use the same optimized query logic for a single control
+    evidence_counts = (
+        select(
+            Evidence.control_id,
+            func.count(Evidence.id).label("count")
+        )
+        .where(
+            Evidence.control_id == control_id,
+            Evidence.organization_id == current_user.organization_id
+        )
+        .group_by(Evidence.control_id)
+        .subquery()
+    )
 
-    if not control:
+    task_info = (
+        select(
+            Task.control_id,
+            func.count(Task.id).label("count"),
+            func.count(case((Task.status != "Completed", 1))).label("uncompleted_count"),
+            func.count(case((Task.status == "In Progress", 1))).label("in_progress_count")
+        )
+        .where(
+            Task.control_id == control_id,
+            Task.organization_id == current_user.organization_id
+        )
+        .group_by(Task.control_id)
+        .subquery()
+    )
+
+    query = (
+        select(
+            Control,
+            func.coalesce(evidence_counts.c.count, 0).label("evidence_count"),
+            func.coalesce(task_info.c.count, 0).label("task_count"),
+            func.coalesce(task_info.c.uncompleted_count, 0).label("uncompleted_count"),
+            func.coalesce(task_info.c.in_progress_count, 0).label("in_progress_count")
+        )
+        .where(Control.id == control_id)
+        .outerjoin(evidence_counts, Control.id == evidence_counts.c.control_id)
+        .outerjoin(task_info, Control.id == task_info.c.control_id)
+    )
+
+    result = await db.execute(query)
+    row = result.first()
+
+    if not row:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Control not found"
         )
 
-    # Get evidence count
-    evidence_result = await db.execute(
-        select(Evidence).where(
-            Evidence.control_id == control.id,
-            Evidence.organization_id == current_user.organization_id
-        )
-    )
-    evidence_count = len(evidence_result.scalars().all())
+    control, evidence_count, task_count, uncompleted_count, in_progress_count = row
 
-    # Get task count
-    task_result = await db.execute(
-        select(Task).where(
-            Task.control_id == control.id,
-            Task.organization_id == current_user.organization_id
-        )
-    )
-    tasks = task_result.scalars().all()
-    task_count = len(tasks)
-
-    if evidence_count > 0 and all(t.status == "Completed" for t in tasks):
+    if evidence_count > 0 and uncompleted_count == 0:
         completion_status = "Completed"
-    elif evidence_count > 0 or any(t.status == "In Progress" for t in tasks):
+    elif evidence_count > 0 or in_progress_count > 0:
         completion_status = "In Progress"
     else:
         completion_status = "Not Started"
@@ -138,6 +182,7 @@ async def get_control(
         task_count=task_count,
         completion_status=completion_status
     )
+
 
 
 @router.post("/seed")
