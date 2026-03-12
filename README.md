@@ -670,4 +670,6 @@ This exists because compliance tooling sucks. We're trying to fix that by being:
 
 If you're building this, you're probably technical, frustrated with existing tools, and willing to do hard research work. Good. That's who this is for.
 
+---
+
 **No pep talk. Just execution.**
