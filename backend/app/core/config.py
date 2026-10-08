@@ -2,8 +2,9 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    # Required
-    DATABASE_URL: str
+    # Validated in app.db.url so a missing/placeholder value reports the
+    # problem clearly instead of failing as a parser error.
+    DATABASE_URL: str = ""
     SECRET_KEY: str
     FRONTEND_URL: str = "http://localhost:5173"
 

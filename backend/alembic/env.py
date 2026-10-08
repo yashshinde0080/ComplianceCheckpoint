@@ -1,46 +1,21 @@
 import asyncio
 from logging.config import fileConfig
-import ssl
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
-from sqlalchemy.engine.url import make_url
 
 from alembic import context
 
 from app.core.config import settings
 from app.db.base import Base
 from app.db.models import *  # Import all models
+from app.db.url import build_database_url
 
 config = context.config
 
-# Process the DATABASE_URL to ensure it works with asyncpg and Neon
-db_url = settings.DATABASE_URL
-print(f"DEBUG: Raw settings.DATABASE_URL: {db_url}")
-
-url_obj = make_url(db_url)
-
-# Ensure asyncpg driver
-if url_obj.drivername == "postgresql":
-    url_obj = url_obj.set(drivername="postgresql+asyncpg")
-
-# Handle SSL for Neon/Cloud Postgres
-connect_args = {}
-ssl_mode = url_obj.query.get("sslmode")
-print(f"DEBUG: Found sslmode={ssl_mode}")
-
-if ssl_mode == "require":
-    print("DEBUG: Configuring SSL context...")
-    ssl_context = ssl.create_default_context()
-    ssl_context.check_hostname = False
-    ssl_context.verify_mode = ssl.CERT_NONE
-    connect_args["ssl"] = ssl_context
-
-# Remove sslmode and channel_binding from query as asyncpg doesn't support them in options
-query = dict(url_obj.query)
-query.pop("sslmode", None)
-query.pop("channel_binding", None)
-url_obj = url_obj.set(query=query)
+# Normalise DATABASE_URL for asyncpg + Neon. Hostname verification stays off
+# for Neon's SNI-routed pooled endpoints, matching the previous behaviour.
+url_obj, connect_args = build_database_url(settings.DATABASE_URL, verify_ssl=False)
 
 # IMPORTANT: render_as_string(hide_password=False) is crucial because str(url_obj) masks the password 
 # in newer SQLAlchemy versions, causing auth failure.
