@@ -119,7 +119,7 @@ const Pricing = () => {
                 size="lg"
                 asChild
               >
-                <a href="http://localhost:5173/register" className="w-full">
+                <a href="/app/register" className="w-full">
                   {plan.cta}
                   <ArrowRight className="h-4 w-4" />
                 </a>

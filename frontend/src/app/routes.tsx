@@ -2,7 +2,6 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/app/providers'
 import { Layout } from '@/components/layout/Layout'
 import { AuthPage } from '@/pages/auth/AuthPage'
-import { LandingPage } from '@/pages/landing/LandingPage'
 import { AccountPage } from '@/pages/account/AccountPage'
 import { DashboardPage } from '@/pages/dashboard/DashboardPage'
 import { ControlsPage } from '@/pages/controls/ControlsPage'
@@ -43,7 +42,7 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
       if (user) {
         routerLogger.nav(location.pathname, 'accessed private route')
       } else {
-        routerLogger.nav('/login', 'redirecting (not authenticated)')
+        routerLogger.nav('/app/login', 'redirecting (not authenticated)')
       }
     }
   }, [location.pathname, user, isLoading])
@@ -53,7 +52,7 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/app/login" replace />
   }
 
   return <Layout>{children}</Layout>
@@ -66,7 +65,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!isLoading) {
       if (user) {
-        routerLogger.nav('/dashboard', 'redirecting (already authenticated)')
+        routerLogger.nav('/app/dashboard', 'redirecting (already authenticated)')
       } else {
         routerLogger.nav(location.pathname, 'accessed public route')
       }
@@ -77,9 +76,9 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
     return <LoadingScreen />
   }
 
-  if (user) {
-    return <Navigate to="/dashboard" replace />
-  }
+if (user) {
+        return <Navigate to="/app/dashboard" replace />;
+      }
 
   return <>{children}</>
 }
@@ -89,7 +88,7 @@ export function AppRoutes() {
     <Routes>
       {/* Public Routes */}
       <Route
-        path="/login"
+        path="/app/login"
         element={
           <PublicRoute>
             <AuthPage />
@@ -97,7 +96,7 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/register"
+        path="/app/register"
         element={
           <PublicRoute>
             <AuthPage />
@@ -107,7 +106,7 @@ export function AppRoutes() {
 
       {/* Private Routes */}
       <Route
-        path="/dashboard"
+        path="/app/dashboard"
         element={
           <PrivateRoute>
             <DashboardPage />
@@ -115,7 +114,7 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/account"
+        path="/app/account"
         element={
           <PrivateRoute>
             <AccountPage />
@@ -123,7 +122,7 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/controls"
+        path="/app/controls"
         element={
           <PrivateRoute>
             <ControlsPage />
@@ -131,7 +130,7 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/controls/:id"
+        path="/app/controls/:id"
         element={
           <PrivateRoute>
             <ControlDetailPage />
@@ -139,7 +138,7 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/policies"
+        path="/app/policies"
         element={
           <PrivateRoute>
             <PoliciesPage />
@@ -147,7 +146,7 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/policies/:id"
+        path="/app/policies/:id"
         element={
           <PrivateRoute>
             <PolicyDetailPage />
@@ -155,7 +154,7 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/evidence"
+        path="/app/evidence"
         element={
           <PrivateRoute>
             <EvidencePage />
@@ -163,7 +162,7 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/tasks"
+        path="/app/tasks"
         element={
           <PrivateRoute>
             <TasksPage />
@@ -171,7 +170,7 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/audit"
+        path="/app/audit"
         element={
           <PrivateRoute>
             <AuditPage />
@@ -179,7 +178,7 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/settings"
+        path="/app/settings"
         element={
           <PrivateRoute>
             <SettingsPage />
@@ -187,16 +186,14 @@ export function AppRoutes() {
         }
       />
 
-      {/* Landing Page as root */}
+      {/* Redirect root to landing_page service */}
       <Route
         path="/"
-        element={
-          <LandingPage />
-        }
+        element={<Navigate to="/" replace />}
       />
 
-      {/* 404 */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+      {/* 404 - redirect to app root */}
+      <Route path="*" element={<Navigate to="/app/dashboard" replace />} />
     </Routes>
   )
 }
