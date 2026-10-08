@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
+import { PageHeader } from '@/components/layout/PageHeader'
 import { controlsApi } from '@/lib/api'
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -64,10 +65,7 @@ export function ControlsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Control Library</h1>
-        <p className="text-muted-foreground">Browse and manage compliance controls</p>
-      </div>
+      <PageHeader title="Control Library" subtitle="Browse and manage compliance controls" />
 
       {/* Filters - Horizontal at the top */}
       <MagicBentoGrid>

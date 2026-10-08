@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { PageHeader } from '@/components/layout/PageHeader'
 import { auditsApi } from '@/lib/api'
 import { CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { MagicBentoCard, MagicBentoGrid } from '@/components/ui/MagicBento'
@@ -136,10 +137,7 @@ export function AuditPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Audit Export</h1>
-          <p className="text-muted-foreground">Generate audit-ready compliance reports</p>
-        </div>
+        <PageHeader title="Audit Export" subtitle="Generate audit-ready compliance reports" />
         <Dialog open={exportDialogOpen} onOpenChange={setExportDialogOpen}>
           <DialogTrigger asChild>
             <Button>

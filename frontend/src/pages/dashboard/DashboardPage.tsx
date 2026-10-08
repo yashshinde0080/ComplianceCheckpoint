@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/layout/PageHeader'
 import { useQuery } from '@tanstack/react-query'
 import { organizationApi, controlsApi } from '@/lib/api'
 import { CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -106,11 +107,8 @@ export function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground">Your compliance readiness overview</p>
-        </div>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <PageHeader title="Dashboard" subtitle="Your compliance readiness overview" />
         {(!controls || controls.length === 0) && (
           <Button onClick={handleSeedControls} className="btn-gradient shadow-lg">
             <Shield className="mr-2 h-4 w-4" />

@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/layout/PageHeader';
 import { useAuth } from '@/app/providers';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,14 +14,7 @@ export function AccountPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">
-          Account Settings
-        </h1>
-        <p className="text-muted-foreground">
-          Manage your compliance profile and security preferences
-        </p>
-      </div>
+      <PageHeader title="Account Settings" subtitle="Manage your compliance profile and security preferences" />
 
       {/* Profile & Settings Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

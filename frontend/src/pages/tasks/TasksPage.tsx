@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { PageHeader } from '@/components/layout/PageHeader'
 import { tasksApi, controlsApi } from '@/lib/api'
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { MagicBentoCard, MagicBentoGrid } from '@/components/ui/MagicBento'
@@ -151,10 +152,7 @@ export function TasksPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Tasks</h1>
-          <p className="text-muted-foreground">Track and manage compliance tasks</p>
-        </div>
+        <PageHeader title="Tasks" subtitle="Track and manage compliance tasks" />
         <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button>

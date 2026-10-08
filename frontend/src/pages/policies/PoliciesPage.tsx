@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
+import { PageHeader } from '@/components/layout/PageHeader'
 import { policiesApi } from '@/lib/api'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -117,10 +118,7 @@ export function PoliciesPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Policies</h1>
-          <p className="text-muted-foreground">Manage your compliance policies</p>
-        </div>
+        <PageHeader title="Policies" subtitle="Manage your compliance policies" />
         <Dialog open={generateDialogOpen} onOpenChange={setGenerateDialogOpen}>
           <DialogTrigger asChild>
             <Button>

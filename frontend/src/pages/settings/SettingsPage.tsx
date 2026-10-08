@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { PageHeader } from '@/components/layout/PageHeader'
 import { organizationApi } from '@/lib/api'
 import { useAuth } from '@/app/providers'
 import { CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -128,10 +129,7 @@ export function SettingsPage() {
   return (
     <div className="space-y-6 max-w-3xl">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Settings</h1>
-        <p className="text-muted-foreground">Manage your organization and account settings</p>
-      </div>
+      <PageHeader title="Settings" subtitle="Manage your organization and account settings" />
 
       <MagicBentoGrid className="space-y-6">
         {/* User Info */}

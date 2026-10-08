@@ -81,6 +81,29 @@
     color: hsl(var(--foreground));
   }
 
+  ::selection {
+    background: hsl(var(--primary) / 0.35);
+    color: hsl(var(--foreground));
+  }
+
+  /* Consistent keyboard focus ring across the app. */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  /* Respect users who prefer reduced motion. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
   /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
@@ -141,7 +164,7 @@
 
   /* Sidebar styles */
   .sidebar-link {
-    @apply flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all duration-200;
+    @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200;
   }
 
   /* Progress bar */

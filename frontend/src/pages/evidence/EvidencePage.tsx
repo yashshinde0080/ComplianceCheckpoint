@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { PageHeader } from '@/components/layout/PageHeader'
 import { evidenceApi, controlsApi } from '@/lib/api'
 import { CardContent } from '@/components/ui/card'
 import { MagicBentoCard, MagicBentoGrid } from '@/components/ui/MagicBento'
@@ -136,10 +137,7 @@ export function EvidencePage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Evidence</h1>
-          <p className="text-muted-foreground">Manage compliance evidence and artifacts</p>
-        </div>
+        <PageHeader title="Evidence" subtitle="Manage compliance evidence and artifacts" />
         <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
           <DialogTrigger asChild>
             <Button>
