@@ -57,6 +57,17 @@
     --border-color: #392e4e;
     --background-dark: #060010;
 
+    /* Semantic surface / text / accent tokens (single source of truth) */
+    --surface: 262 100% 5%;
+    --surface-hover: 262 40% 9%;
+    --border-active: 271 100% 50%;
+    --text-primary: 0 0% 100%;
+    --text-secondary: 262 8% 82%;
+    --text-muted: 262 8% 62%;
+    --brand-accent: 271 100% 50%;
+    --brand-accent-hover: 271 100% 60%;
+    --danger: 0 84% 60%;
+
     /* Chart colors */
     --chart-1: 250 89% 65%;
     --chart-2: 142 76% 45%;
@@ -191,15 +202,29 @@
     background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.8) 100%);
   }
 
+  /* Standard content card used across every page. */
+  .surface-card {
+    @apply rounded-xl border border-border/60 bg-card/60 shadow-sm transition-colors duration-200;
+  }
+
+  .surface-card:hover {
+    @apply border-border;
+  }
+
+  /* Responsive grid that never lets a card fall below a readable width. */
+  .page-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+
   /* React Bits - Magic Bento Exact Styles */
+  /* Bento grid: never squeeze cards below a readable width. */
   .card-grid {
     display: grid;
-    gap: 1.5em;
-    padding: 1em;
-    max-width: 1400px;
+    gap: 1.5rem;
     width: 100%;
-    margin: 0 auto;
-    font-size: clamp(1rem, 0.9rem + 0.5vw, 1.5rem);
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   }
 
   .magic-bento-card {
@@ -344,28 +369,9 @@
   }
 
   @media (max-width: 599px) {
-    .card-grid {
-      grid-template-columns: 1fr;
-      width: 90%;
-      margin: 0 auto;
-      padding: 0.5em;
-    }
-
     .magic-bento-card {
       width: 100%;
-      min-height: 180px;
-    }
-  }
-
-  @media (min-width: 600px) {
-    .card-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .card-grid {
-      grid-template-columns: repeat(4, 1fr);
+      min-height: 160px;
     }
   }
 }

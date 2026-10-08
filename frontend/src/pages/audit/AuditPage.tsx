@@ -2,11 +2,11 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { auditsApi } from '@/lib/api'
-import { CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { MagicBentoCard, MagicBentoGrid } from '@/components/ui/MagicBento'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
+import { EmptyState, ErrorState, PageSkeleton } from '@/components/common/PageStates'
 import {
   Dialog,
   DialogContent,
@@ -43,6 +43,13 @@ const FRAMEWORKS = [
   { id: 3, name: 'GDPR' },
 ]
 
+const BEST_PRACTICES = [
+  { title: 'ZIP Archives', desc: 'Include all evidence files organized by control for direct verification.' },
+  { title: 'HTML Summary', desc: 'A clean browser-ready overview of your entire compliance posture.' },
+  { title: 'Control Mapping', desc: 'Detailed relationships between controls, policies, and evidence.' },
+  { title: 'Audit Trail', desc: 'Persistent versioning and timestamps for every exported artifact.' },
+]
+
 export function AuditPage() {
   const { toast } = useToast()
   const queryClient = useQueryClient()
@@ -50,7 +57,7 @@ export function AuditPage() {
   const [selectedFramework, setSelectedFramework] = useState('')
   const [exportType, setExportType] = useState('PDF')
 
-  const { data: exports, isLoading } = useQuery({
+  const { data: exports, isLoading, isError, refetch } = useQuery({
     queryKey: ['audit-exports'],
     queryFn: async () => {
       const response = await auditsApi.list()
@@ -113,7 +120,7 @@ export function AuditPage() {
       case 'Ready':
         return <CheckCircle className="h-5 w-5 text-green-500" />
       case 'Processing':
-        return <Loader2 className="h-5 w-5 text-blue-500 animate-spin" />
+        return <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
       case 'Failed':
         return <XCircle className="h-5 w-5 text-red-500" />
       default:
@@ -126,22 +133,20 @@ export function AuditPage() {
   }
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    )
+    return <PageSkeleton count={3} />
   }
+
+  const hasExports = (exports?.length ?? 0) > 0
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <PageHeader title="Audit Export" subtitle="Generate audit-ready compliance reports" />
         <Dialog open={exportDialogOpen} onOpenChange={setExportDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
+            <Button className="shrink-0">
+              <Plus className="mr-2 h-4 w-4" />
               New Export
             </Button>
           </DialogTrigger>
@@ -179,7 +184,7 @@ export function AuditPage() {
                     <SelectItem value="ZIP">ZIP Archive (with evidence)</SelectItem>
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted-foreground">
                   {exportType === 'ZIP'
                     ? 'Includes all evidence files and a summary JSON'
                     : 'Generates an HTML report for viewing/printing'}
@@ -189,7 +194,6 @@ export function AuditPage() {
             <DialogFooter>
               <Button
                 variant="outline"
-                className="border-white/10 hover:bg-white/5"
                 onClick={() => setExportDialogOpen(false)}
               >
                 Cancel
@@ -201,7 +205,7 @@ export function AuditPage() {
               >
                 {exportMutation.isPending ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Generating...
                   </>
                 ) : (
@@ -213,167 +217,175 @@ export function AuditPage() {
         </Dialog>
       </div>
 
-      <MagicBentoGrid className="space-y-6">
-        {/* Info Card */}
-        <MagicBentoCard className="magic-bento-card--border-glow border-primary/20 animate-fade-in" spotlightColor="132, 0, 255">
-          <CardContent className="pt-6 relative z-30">
-            <div className="flex items-start space-x-4">
-              <div className="p-3 bg-primary/10 rounded-xl border border-primary/20">
-                <Info className="h-6 w-6 text-primary" />
+      {isError ? (
+        <ErrorState
+          title="Unable to load exports"
+          description="We couldn't retrieve your audit exports right now. Please try again."
+          onRetry={() => refetch()}
+        />
+      ) : (
+        <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[3fr_4fr_3fr]">
+          {/* LEFT — Audit-Ready Exports */}
+          <Card className="p-6">
+            <div className="flex items-start gap-4">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10">
+                <Info className="h-5 w-5 text-primary" />
               </div>
-              <div>
-                <h3 className="font-bold text-foreground text-lg">Audit-Ready Exports</h3>
-                <p className="text-muted-foreground/80 mt-1.5 leading-relaxed">
+              <div className="min-w-0">
+                <h2 className="text-lg font-semibold text-foreground">Audit-Ready Exports</h2>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                   Generate comprehensive reports that include all controls, policies,
-                  evidence, and task completion status. These exports can be shared
-                  directly with auditors to demonstrate your compliance posture.
+                  evidence, and task completion status. Share them directly with auditors
+                  to demonstrate your compliance posture.
                 </p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <Badge variant="outline" className="bg-white/5 border-white/10 text-muted-foreground/80">
-                    <FileText className="h-3 w-3 mr-1.5" />
-                    HTML Reports
-                  </Badge>
-                  <Badge variant="outline" className="bg-white/5 border-white/10 text-muted-foreground/80">
-                    <FileArchive className="h-3 w-3 mr-1.5" />
-                    ZIP Archive
-                  </Badge>
-                  <Badge variant="outline" className="bg-white/5 border-white/10 text-success/60">
-                    <CheckCircle className="h-3 w-3 mr-1.5" />
-                    Verified Mapping
-                  </Badge>
-                </div>
               </div>
             </div>
-          </CardContent>
-        </MagicBentoCard>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <Badge variant="outline" className="border-white/10 bg-white/5 text-muted-foreground">
+                <FileText className="mr-1.5 h-3 w-3" />
+                HTML Reports
+              </Badge>
+              <Badge variant="outline" className="border-white/10 bg-white/5 text-muted-foreground">
+                <FileArchive className="mr-1.5 h-3 w-3" />
+                ZIP Archive
+              </Badge>
+              <Badge variant="outline" className="border-success/20 bg-success/5 text-success">
+                <CheckCircle className="mr-1.5 h-3 w-3" />
+                Verified Mapping
+              </Badge>
+            </div>
+            <Button
+              onClick={() => setExportDialogOpen(true)}
+              className="btn-gradient mt-6 w-full shadow-lg"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              New Export
+            </Button>
+          </Card>
 
-        {/* Exports List */}
-        {exports && exports.length > 0 ? (
-          <MagicBentoCard
-            className="magic-bento-card--border-glow border-white/5 animate-fade-in"
-            style={{ animationDelay: '100ms' }}
-            spotlightColor="132, 0, 255"
-          >
-            <CardHeader className="relative z-30">
-              <CardTitle className="text-lg font-bold">Export History</CardTitle>
-              <CardDescription className="text-muted-foreground/60">
-                Your previously generated audit documentation
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="relative z-30">
-              <div className="divide-y divide-white/5">
-                {exports.map((exp: any) => (
-                  <div
-                    key={exp.id}
-                    className="py-5 flex items-center justify-between group"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className="p-2.5 bg-white/5 rounded-xl border border-white/5 group-hover:border-primary/30 transition-colors">
-                        {exp.export_type === 'ZIP' ? (
-                          <FileArchive className="h-6 w-6 text-muted-foreground/80 group-hover:text-primary transition-colors" />
-                        ) : (
-                          <FileText className="h-6 w-6 text-muted-foreground/80 group-hover:text-primary transition-colors" />
+          {/* CENTER — Export status / empty state */}
+          {hasExports ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold">Export History</CardTitle>
+                <CardDescription className="text-muted-foreground">
+                  Your previously generated audit documentation
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="divide-y divide-white/5">
+                  {exports!.map((exp: any) => (
+                    <div
+                      key={exp.id}
+                      className="flex flex-wrap items-center justify-between gap-4 py-4"
+                    >
+                      <div className="flex min-w-0 items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/5 bg-white/5">
+                          {exp.export_type === 'ZIP' ? (
+                            <FileArchive className="h-5 w-5 text-muted-foreground" />
+                          ) : (
+                            <FileText className="h-5 w-5 text-muted-foreground" />
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="truncate font-semibold text-foreground">
+                              {getFrameworkName(exp.framework_id)} Report
+                            </span>
+                            <Badge
+                              className={cn(
+                                getStatusColor(exp.status),
+                                'px-2 text-[10px] font-bold uppercase tracking-wider'
+                              )}
+                            >
+                              {exp.status}
+                            </Badge>
+                            <Badge
+                              variant="outline"
+                              className="border-white/10 text-[10px] font-bold uppercase tracking-widest text-muted-foreground"
+                            >
+                              {exp.export_type}
+                            </Badge>
+                          </div>
+                          <p className="mt-1.5 text-xs font-medium text-muted-foreground">
+                            Initiated {formatDateTime(exp.created_at)}
+                            {exp.generated_at && (
+                              <span> • Ready {formatDateTime(exp.generated_at)}</span>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-3">
+                        {getStatusIcon(exp.status)}
+                        {exp.status === 'Ready' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-8 px-3 text-xs font-semibold"
+                            onClick={() => handleDownload(
+                              exp.id,
+                              `audit_export_${exp.id}.${exp.export_type === 'ZIP' ? 'zip' : 'html'}`
+                            )}
+                          >
+                            <Download className="mr-2 h-3.5 w-3.5" />
+                            Download
+                          </Button>
                         )}
                       </div>
-                      <div>
-                        <div className="flex items-center gap-3">
-                          <span className="font-bold text-foreground">
-                            {getFrameworkName(exp.framework_id)} Report
-                          </span>
-                          <Badge className={cn(getStatusColor(exp.status), 'uppercase text-[10px] font-bold tracking-wider px-2')}>
-                            {exp.status}
-                          </Badge>
-                          <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-widest border-white/10 text-muted-foreground/60">
-                            {exp.export_type}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground/40 mt-1.5 font-medium">
-                          Initiated {formatDateTime(exp.created_at)}
-                          {exp.generated_at && (
-                            <span className="opacity-80"> • Ready {formatDateTime(exp.generated_at)}</span>
-                          )}
-                        </p>
-                      </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <div className="opacity-60 group-hover:opacity-100 transition-opacity">
-                        {getStatusIcon(exp.status)}
-                      </div>
-                      {exp.status === 'Ready' && (
-                        <Button
-                          size="sm"
-                          className="bg-white/5 border border-white/10 hover:border-primary/40 hover:bg-primary/5 transition-all text-xs h-8 px-4 font-bold"
-                          onClick={() => handleDownload(
-                            exp.id,
-                            `audit_export_${exp.id}.${exp.export_type === 'ZIP' ? 'zip' : 'html'}`
-                          )}
-                        >
-                          <Download className="h-3.5 w-3.5 mr-2" />
-                          Download
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </MagicBentoCard>
-        ) : (
-          <MagicBentoCard
-            className="magic-bento-card--border-glow border-white/5 animate-fade-in"
-            style={{ animationDelay: '100ms' }}
-            spotlightColor="132, 0, 255"
-          >
-            <CardContent className="py-12 text-center relative z-30">
-              <div className="bg-white/[0.02] w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/5 shadow-inner">
-                <Download className="h-10 w-10 text-muted-foreground/20" />
-              </div>
-              <h3 className="text-2xl font-bold text-foreground mb-3">No exports yet</h3>
-              <p className="text-muted-foreground/60 mb-8 max-w-sm mx-auto leading-relaxed">
-                Generate your first audit export to share organized compliance evidence with your auditors.
-              </p>
-              <Button onClick={() => setExportDialogOpen(true)} className="btn-gradient shadow-lg px-8 py-6 h-auto text-base">
-                <Plus className="h-5 w-5 mr-2" />
-                Create First Export
-              </Button>
-            </CardContent>
-          </MagicBentoCard>
-        )}
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <EmptyState
+              icon={Download}
+              title="No exports yet"
+              description="Generate your first audit export to share organized compliance evidence with your auditors."
+              className="h-full min-h-[320px]"
+              action={
+                <Button
+                  onClick={() => setExportDialogOpen(true)}
+                  className="btn-gradient shadow-lg"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create First Export
+                </Button>
+              }
+            />
+          )}
 
-        {/* Tips Card */}
-        <MagicBentoCard
-          className="magic-bento-card--border-glow border-white/5 bg-secondary/20 animate-fade-in"
-          style={{ animationDelay: '200ms' }}
-          spotlightColor="132, 0, 255"
-        >
-          <CardHeader className="relative z-30">
-            <CardTitle className="text-lg font-bold flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-primary" />
-              Auditor Best Practices
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="relative z-30">
-            <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                { title: 'ZIP Archives', desc: 'Include all evidence files organized by control for direct verification.' },
-                { title: 'HTML Summary', desc: 'A clean browser-ready overview of your entire compliance posture.' },
-                { title: 'Control Mapping', desc: 'Detailed relationships between controls, policies, and evidence.' },
-                { title: 'Audit Trail', desc: 'Persistent versioning and timestamps for every exported artifact.' }
-              ].map((tip, i) => (
-                <li key={i} className="flex gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/5">
-                  <div className="bg-success/10 p-1.5 h-fit rounded border border-success/20">
-                    <CheckCircle className="h-3.5 w-3.5 text-success" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-foreground text-sm">{tip.title}</h4>
-                    <p className="text-muted-foreground/60 text-xs mt-1 leading-relaxed">{tip.desc}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </MagicBentoCard>
-      </MagicBentoGrid>
+          {/* RIGHT — Auditor Best Practices */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+                <CheckCircle className="h-5 w-5 text-primary" />
+                Auditor Best Practices
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3">
+                {BEST_PRACTICES.map((tip) => (
+                  <li
+                    key={tip.title}
+                    className="flex gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-4"
+                  >
+                    <div className="h-fit rounded border border-success/20 bg-success/10 p-1.5">
+                      <CheckCircle className="h-3.5 w-3.5 text-success" />
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className="text-sm font-semibold text-foreground">{tip.title}</h4>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        {tip.desc}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }

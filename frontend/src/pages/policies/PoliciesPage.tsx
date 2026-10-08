@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { EmptyState, ErrorState, PageSkeleton } from '@/components/common/PageStates'
 import {
   Dialog,
   DialogContent,
@@ -47,7 +48,7 @@ export function PoliciesPage() {
   const [selectedPolicyType, setSelectedPolicyType] = useState('')
   const [companyName, setCompanyName] = useState('')
 
-  const { data: policies, isLoading } = useQuery({
+  const { data: policies, isLoading, isError, refetch } = useQuery({
     queryKey: ['policies'],
     queryFn: async () => {
       const response = await policiesApi.list()
@@ -107,22 +108,18 @@ export function PoliciesPage() {
   }
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    )
+    return <PageSkeleton count={4} />
   }
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <PageHeader title="Policies" subtitle="Manage your compliance policies" />
         <Dialog open={generateDialogOpen} onOpenChange={setGenerateDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
-              <Wand2 className="h-4 w-4 mr-2" />
+            <Button className="shrink-0">
+              <Wand2 className="mr-2 h-4 w-4" />
               Generate Policy
             </Button>
           </DialogTrigger>
@@ -177,84 +174,84 @@ export function PoliciesPage() {
         </Dialog>
       </div>
 
-      <div className="grid gap-6">
-        {/* Policies List */}
-        {policies && policies.length > 0 ? (
-          <div className="grid gap-4">
-            {policies.map((policy: any, index: number) => (
-              <Card
-                key={policy.id}
-                className="animate-fade-in border-white/10 bg-card/50 hover:bg-card/80 transition-all duration-300"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className="p-3 bg-primary/10 rounded-xl border border-primary/20">
-                        <FileText className="h-6 w-6 text-primary" />
-                      </div>
-                      <div>
-                        <Link
-                          to={`/policies/${policy.id}`}
-                          className="font-bold text-lg text-foreground hover:text-primary transition-colors block"
-                        >
-                          {policy.title}
-                        </Link>
-                        <div className="flex items-center gap-3 mt-1.5">
-                          <Badge className={cn(getStatusColor(policy.status), 'text-[10px] uppercase font-bold tracking-wider')}>
-                            {policy.status}
-                          </Badge>
-                          <span className="text-xs text-muted-foreground/60 font-medium">
-                            v{policy.version}
-                          </span>
-                          <span className="text-xs text-muted-foreground/40 font-medium italic">
-                            Updated {formatDate(policy.updated_at)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-red-500/60 hover:text-red-500 hover:bg-red-500/10 h-9 w-9 transition-all"
-                        onClick={() => {
-                          if (confirm('Are you sure you want to delete this policy?')) {
-                            deleteMutation.mutate(policy.id)
-                          }
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-9 w-9 bg-white/5 border border-white/10 hover:border-primary/40 transition-all" asChild>
-                        <Link to={`/policies/${policy.id}`}>
-                          <ChevronRight className="h-5 w-5" />
-                        </Link>
-                      </Button>
+      {/* Policies List */}
+      {isError ? (
+        <ErrorState
+          title="Unable to load policies"
+          description="We couldn't retrieve your policies right now. Please try again."
+          onRetry={() => refetch()}
+        />
+      ) : policies && policies.length > 0 ? (
+        <div className="grid gap-4">
+          {policies.map((policy: any, index: number) => (
+            <Card
+              key={policy.id}
+              className="animate-fade-in"
+              style={{ animationDelay: `${index * 50}ms` }}
+            >
+              <CardContent className="flex flex-wrap items-center justify-between gap-4 p-5">
+                <div className="flex min-w-0 flex-1 items-center gap-4">
+                  <div className="shrink-0 rounded-xl border border-primary/20 bg-primary/10 p-3">
+                    <FileText className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="min-w-0">
+                    <Link
+                      to={`/policies/${policy.id}`}
+                      className="block truncate text-base font-semibold text-foreground transition-colors hover:text-primary"
+                      title={policy.title}
+                    >
+                      {policy.title}
+                    </Link>
+                    <div className="mt-1.5 flex flex-wrap items-center gap-3">
+                      <Badge className={cn(getStatusColor(policy.status), 'text-[10px] font-bold uppercase tracking-wider')}>
+                        {policy.status}
+                      </Badge>
+                      <span className="text-xs font-medium text-muted-foreground">
+                        v{policy.version}
+                      </span>
+                      <span className="text-xs font-medium text-muted-foreground">
+                        Updated {formatDate(policy.updated_at)}
+                      </span>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <Card className="border-white/10 bg-card/50">
-            <CardContent className="py-12 text-center">
-              <div className="bg-white/[0.02] w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5">
-                <FileText className="h-8 w-8 text-muted-foreground/30" />
-              </div>
-              <h3 className="text-xl font-bold text-foreground mb-2">No policies yet</h3>
-              <p className="text-muted-foreground/60 mb-6 max-w-sm mx-auto">
-                Generate your first policy to establish a solid compliance foundation for your organization.
-              </p>
-              <Button onClick={() => setGenerateDialogOpen(true)} className="btn-gradient shadow-lg">
-                <Wand2 className="h-4 w-4 mr-2" />
-                Generate First Policy
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 text-red-500/60 transition-all hover:bg-red-500/10 hover:text-red-500"
+                    title="Delete policy"
+                    onClick={() => {
+                      if (confirm('Are you sure you want to delete this policy?')) {
+                        deleteMutation.mutate(policy.id)
+                      }
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+                    <Link to={`/policies/${policy.id}`}>
+                      <ChevronRight className="h-5 w-5" />
+                    </Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <EmptyState
+          icon={FileText}
+          title="No policies yet"
+          description="Generate your first policy to establish a solid compliance foundation for your organization."
+          action={
+            <Button onClick={() => setGenerateDialogOpen(true)} className="btn-gradient shadow-lg">
+              <Wand2 className="mr-2 h-4 w-4" />
+              Generate First Policy
+            </Button>
+          }
+        />
+      )}
     </div>
   )
 }

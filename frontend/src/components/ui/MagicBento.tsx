@@ -84,9 +84,9 @@ export const MagicBentoCard: React.FC<BentoCardProps & {
     particleCount = DEFAULT_PARTICLE_COUNT,
     glowColor: propGlowColor = DEFAULT_GLOW_COLOR,
     spotlightColor,
-    enableTilt = true,
-    clickEffect = true,
-    enableMagnetism = true,
+    enableTilt = false,
+    clickEffect = false,
+    enableMagnetism = false,
     label,
     title,
     description
@@ -487,7 +487,7 @@ export const MagicBentoGrid: React.FC<{
         const gridRef = externalGridRef || internalGridRef;
 
         return (
-            <div className={cn("card-grid bento-section", className)} ref={gridRef}>
+            <div className={cn("bento-section", className)} ref={gridRef}>
                 {enableSpotlight && (
                     <GlobalSpotlight
                         gridRef={gridRef}

@@ -2,13 +2,13 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { evidenceApi, controlsApi } from '@/lib/api'
-import { CardContent } from '@/components/ui/card'
-import { MagicBentoCard, MagicBentoGrid } from '@/components/ui/MagicBento'
+import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { EmptyState, ErrorState, PageSkeleton } from '@/components/common/PageStates'
 import {
   Dialog,
   DialogContent,
@@ -46,7 +46,7 @@ export function EvidencePage() {
   const [selectedControlId, setSelectedControlId] = useState('')
   const [description, setDescription] = useState('')
 
-  const { data: evidence, isLoading } = useQuery({
+  const { data: evidence, isLoading, isError, refetch } = useQuery({
     queryKey: ['all-evidence'],
     queryFn: async () => {
       const response = await evidenceApi.list()
@@ -125,23 +125,22 @@ export function EvidencePage() {
     return matchesSearch && matchesStatus
   })
 
+  const hasEvidence = (evidence?.length ?? 0) > 0
+  const hasResults = (filteredEvidence?.length ?? 0) > 0
+
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    )
+    return <PageSkeleton count={6} />
   }
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <PageHeader title="Evidence" subtitle="Manage compliance evidence and artifacts" />
         <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
-              <Upload className="h-4 w-4 mr-2" />
+            <Button className="shrink-0">
+              <Upload className="mr-2 h-4 w-4" />
               Upload Evidence
             </Button>
           </DialogTrigger>
@@ -202,143 +201,164 @@ export function EvidencePage() {
         </Dialog>
       </div>
 
-      <MagicBentoGrid className="space-y-6">
-        {/* Filters */}
-        <MagicBentoCard className="magic-bento-card--border-glow animate-fade-in" spotlightColor="132, 0, 255">
-          <CardContent className="pt-6 relative z-30">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search evidence..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full md:w-48">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="Pending">Pending</SelectItem>
-                  <SelectItem value="Accepted">Accepted</SelectItem>
-                  <SelectItem value="Rejected">Rejected</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </MagicBentoCard>
+      {/* Filter bar */}
+      <Card className="p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search evidence..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-full sm:w-48">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="Pending">Pending</SelectItem>
+              <SelectItem value="Accepted">Accepted</SelectItem>
+              <SelectItem value="Rejected">Rejected</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </Card>
 
-        {/* Evidence List */}
-        {filteredEvidence && filteredEvidence.length > 0 ? (
-          <MagicBentoCard
-            className="magic-bento-card--border-glow animate-fade-in"
-            style={{ animationDelay: '100ms' }}
-            spotlightColor="132, 0, 255"
-          >
-            <CardContent className="p-0 relative z-30">
-              <div className="divide-y divide-white/5">
-                {filteredEvidence.map((item: any) => {
-                  const control = controls?.find((c: any) => c.id === item.control_id)
-                  return (
-                    <div key={item.id} className="p-4 flex items-center justify-between hover:bg-white/5 transition-colors border-b border-white/5 last:border-0 min-h-[90px]">
-                      <div className="flex items-center space-x-4">
-                        <div className="p-2.5 bg-secondary rounded-xl border border-white/5">
-                          <FileText className="h-5 w-5 text-muted-foreground/80" />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-foreground">{item.file_name}</p>
-                          <div className="flex items-center gap-2 text-[13px] text-muted-foreground/60">
-                            {control && (
-                              <span className="font-mono text-primary font-bold opacity-80">
-                                {control.control_code}
-                              </span>
-                            )}
-                            <span className="opacity-40">•</span>
-                            <span>Version {item.version}</span>
-                            <span className="opacity-40">•</span>
-                            <span>{formatDateTime(item.created_at)}</span>
-                          </div>
-                          {item.description && (
-                            <p className="text-sm text-muted-foreground/80 mt-1.5">{item.description}</p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Badge className={cn(getStatusColor(item.status), 'uppercase text-[10px] font-bold tracking-wider')}>
-                          {item.status}
-                        </Badge>
-                        {item.status === 'Pending' && (
-                          <div className="flex items-center bg-white/5 rounded-lg p-0.5 border border-white/5">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="text-green-500/80 hover:text-green-500 hover:bg-green-500/10 h-7 w-7 p-0 transition-all"
-                              onClick={() =>
-                                updateStatusMutation.mutate({
-                                  id: item.id,
-                                  status: 'Accepted',
-                                })
-                              }
-                            >
-                              <CheckCircle className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="text-red-500/80 hover:text-red-500 hover:bg-red-500/10 h-7 w-7 p-0 transition-all"
-                              onClick={() =>
-                                updateStatusMutation.mutate({
-                                  id: item.id,
-                                  status: 'Rejected',
-                                })
-                              }
-                            >
-                              <XCircle className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        )}
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="text-red-500/60 hover:text-red-500 hover:bg-red-500/10 h-7 w-7 p-0 transition-all"
-                          onClick={() => {
-                            if (confirm('Are you sure you want to delete this evidence?')) {
-                              deleteMutation.mutate(item.id)
-                            }
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+      {/* Content */}
+      {isError ? (
+        <ErrorState
+          title="Unable to load evidence"
+          description="We couldn't retrieve the evidence list right now. Please try again."
+          onRetry={() => refetch()}
+        />
+      ) : !hasEvidence ? (
+        <EmptyState
+          icon={Upload}
+          title="No evidence yet"
+          description="Upload your first piece of evidence to begin building your compliance record."
+          action={
+            <Button onClick={() => setUploadDialogOpen(true)} className="btn-gradient shadow-lg">
+              <Upload className="mr-2 h-4 w-4" />
+              Upload Evidence
+            </Button>
+          }
+        />
+      ) : !hasResults ? (
+        <EmptyState
+          icon={Search}
+          title="No matching evidence"
+          description="Try adjusting your search or status filter to find what you're looking for."
+        />
+      ) : (
+        <div className="page-grid">
+          {filteredEvidence!.map((item: any, index: number) => {
+            const control = controls?.find((c: any) => c.id === item.control_id)
+            return (
+              <Card
+                key={item.id}
+                className="animate-fade-in flex flex-col p-5"
+                style={{ animationDelay: `${index * 40}ms` }}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10">
+                      <FileText className="h-5 w-5 text-primary" />
                     </div>
-                  )
-                })}
-              </div>
-            </CardContent>
-          </MagicBentoCard>
-        ) : (
-          <MagicBentoCard
-            className="magic-bento-card--border-glow animate-fade-in"
-            style={{ animationDelay: '100ms' }}
-            spotlightColor="132, 0, 255"
-          >
-            <CardContent className="py-12 text-center relative z-30">
-              <Upload className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-foreground mb-2">No evidence yet</h3>
-              <p className="text-muted-foreground/60 mb-6 max-w-sm mx-auto">
-                Upload your first evidence file to verify controls and stay audit-ready.
-              </p>
-              <Button onClick={() => setUploadDialogOpen(true)} className="btn-gradient shadow-lg">
-                <Upload className="h-4 w-4 mr-2" />
-                Upload Evidence
-              </Button>
-            </CardContent>
-          </MagicBentoCard>
-        )}
-      </MagicBentoGrid>
+                    <div className="min-w-0">
+                      <p
+                        className="truncate font-semibold leading-tight text-foreground"
+                        title={item.file_name}
+                      >
+                        {item.file_name}
+                      </p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        Version {item.version}
+                      </p>
+                    </div>
+                  </div>
+                  <Badge
+                    className={cn(
+                      getStatusColor(item.status),
+                      'shrink-0 text-[10px] font-bold uppercase tracking-wider'
+                    )}
+                  >
+                    {item.status}
+                  </Badge>
+                </div>
+
+                <dl className="mt-4 space-y-2 text-sm">
+                  <div className="flex items-center justify-between gap-3">
+                    <dt className="text-muted-foreground">Control</dt>
+                    <dd className="truncate font-mono text-xs font-semibold text-primary">
+                      {control?.control_code ?? 'Unlinked'}
+                    </dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <dt className="text-muted-foreground">Uploaded</dt>
+                    <dd className="truncate text-xs text-foreground/80">
+                      {formatDateTime(item.created_at)}
+                    </dd>
+                  </div>
+                </dl>
+
+                {item.description && (
+                  <p
+                    className="mt-3 line-clamp-2 text-sm text-muted-foreground"
+                    title={item.description}
+                  >
+                    {item.description}
+                  </p>
+                )}
+
+                <div className="mt-auto flex items-center justify-end gap-2 pt-4">
+                  {item.status === 'Pending' && (
+                    <div className="mr-auto flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 p-0.5">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-8 w-8 p-0 text-green-500/80 transition-all hover:bg-green-500/10 hover:text-green-500"
+                        title="Accept evidence"
+                        onClick={() =>
+                          updateStatusMutation.mutate({ id: item.id, status: 'Accepted' })
+                        }
+                      >
+                        <CheckCircle className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-8 w-8 p-0 text-red-500/80 transition-all hover:bg-red-500/10 hover:text-red-500"
+                        title="Reject evidence"
+                        onClick={() =>
+                          updateStatusMutation.mutate({ id: item.id, status: 'Rejected' })
+                        }
+                      >
+                        <XCircle className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-8 w-8 p-0 text-red-500/60 transition-all hover:bg-red-500/10 hover:text-red-500"
+                    title="Delete evidence"
+                    onClick={() => {
+                      if (confirm('Are you sure you want to delete this evidence?')) {
+                        deleteMutation.mutate(item.id)
+                      }
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </Card>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
