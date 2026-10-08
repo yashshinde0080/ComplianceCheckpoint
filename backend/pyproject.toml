@@ -31,3 +31,9 @@ dependencies = [
     "types-python-jose>=3.5.0.20250531",
     "uvicorn[standard]>=0.40.0",
 ]
+
+# Pin the FastAPI entrypoint for Vercel. Vercel auto-detects FastAPI, but this
+# repo's project root also contains a placeholder main.py, so be explicit:
+# load the `app` object from backend/app/main.py.
+[tool.vercel]
+entrypoint = "app.main:app"

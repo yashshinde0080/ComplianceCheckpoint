@@ -510,20 +510,33 @@ Navigate to `http://localhost:5173`
 
 ## Deployment
 
-### Backend (Render/Railway/Fly.io)
-1. Connect GitHub repo
-2. Set environment variables:
-   - `DATABASE_URL` (Neon connection string)
-   - `SECRET_KEY`
-   - `S3_ENDPOINT`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `S3_BUCKET`
-3. Build command: `pip install -r requirements.txt`
-4. Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+This repository deploys as **separate Vercel projects**, all from this one repo.
+For each project, set the **Root Directory** in Vercel to the folder below.
 
-### Frontend (Vercel/Netlify/Cloudflare Pages)
-1. Connect GitHub repo
-2. Build command: `npm run build`
-3. Output directory: `dist`
-4. Environment variable: `VITE_BACKEND_URL` (production backend URL; leave empty if the backend is served from the same origin)
+| Project          | Root Directory | Framework                  |
+| ---------------- | -------------- | -------------------------- |
+| Backend API      | `backend`      | FastAPI (auto-detected)    |
+| App frontend     | `frontend`     | Vite (served under `/app/`)|
+| Landing page     | `landing_page` | Vite                       |
+| Docs             | `docs`         | Docusaurus                 |
+
+### Backend (`backend/`)
+1. Import this repo into Vercel as a new project; set Root Directory to `backend`.
+2. Framework Preset: **FastAPI**. Vercel detects it automatically; the
+   entrypoint is pinned to `app.main:app` via `[tool.vercel]` in `pyproject.toml`.
+3. Set environment variables: `DATABASE_URL`, `SECRET_KEY`, `FRONTEND_URL`.
+4. Deploy, then confirm `https://<backend>.vercel.app/health` returns
+   `{"status":"healthy",...}`.
+
+### App frontend (`frontend/`)
+1. New Vercel project; Root Directory `frontend`. Vite: build `npm run build`,
+   output `dist`. SPA deep links are handled by `frontend/vercel.json`.
+2. Environment variable: `VITE_BACKEND_URL=https://<backend>.vercel.app`.
+3. After deploying, set the backend's `FRONTEND_URL` to this URL and redeploy
+   the backend (CORS).
+
+> Note: uploaded evidence and generated audit exports are written to `/tmp` on
+> Vercel, which is ephemeral. Use object storage for durable files.
 
 ### Database Migrations
 ```bash

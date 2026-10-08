@@ -61,8 +61,14 @@ app = FastAPI(
 # Add logging middleware (must be added before CORS)
 app.add_middleware(LoggingMiddleware)
 
-# CORS - Restricted origins
-cors_origins = [settings.FRONTEND_URL]
+# CORS - Restricted origins. FRONTEND_URL may be a comma-separated list so the
+# app frontend and the landing page (separate Vercel projects) can both be
+# allowed without disabling CORS.
+cors_origins = [
+    origin.strip().rstrip("/")
+    for origin in settings.FRONTEND_URL.split(",")
+    if origin.strip()
+]
 if settings.ENVIRONMENT == "development":
     cors_origins.extend([
         "http://localhost:5173",
