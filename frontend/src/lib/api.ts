@@ -1,12 +1,18 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios'
 
+// Public production API URL (a URL, not a secret). Used only when
+// VITE_BACKEND_URL is not provided at build time, so a missing env var cannot
+// silently break every API call. VITE_BACKEND_URL always takes precedence.
+const PRODUCTION_BACKEND_URL = 'https://compliancecheckpoint.vercel.app'
+
 const getBackendUrl = (): string => {
   const raw =
     typeof window !== 'undefined'
       ? (import.meta as any).env?.VITE_BACKEND_URL || ''
       : process.env.BACKEND_URL || ''
+  const base = raw || (import.meta.env.PROD ? PRODUCTION_BACKEND_URL : '')
   // Drop any trailing slash so requests never become "https://host//api/...".
-  return raw.replace(/\/+$/, '')
+  return base.replace(/\/+$/, '')
 }
 
 const createApiClient = (): AxiosInstance => {
@@ -36,7 +42,7 @@ const createApiClient = (): AxiosInstance => {
       if (error.response?.status === 401) {
         if (typeof window !== 'undefined') {
           localStorage.removeItem('token')
-          window.location.href = '/app/login'
+          window.location.href = '/login'
         }
       }
       return Promise.reject(error)

@@ -30,6 +30,14 @@ const registerSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>
 type RegisterFormData = z.infer<typeof registerSchema>
 
+// Distinguish "backend unreachable" from "bad credentials" so a down or
+// misconfigured API shows a useful message instead of a misleading one.
+function authErrorMessage(error: any, fallback: string): string {
+  if (error?.response?.data?.detail) return error.response.data.detail
+  if (error?.response) return fallback
+  return 'Unable to connect to ComplianceCheckpoint API. Please try again shortly.'
+}
+
 export function AuthPage() {
   const location = useLocation()
   const isRegister = location.pathname === '/register'
@@ -70,7 +78,7 @@ export function AuthPage() {
     } catch (error: any) {
       toast({
         title: 'Login failed',
-        description: error.response?.data?.detail || 'Invalid credentials. Please try again.',
+        description: authErrorMessage(error, 'Invalid credentials. Please try again.'),
         variant: 'destructive',
       })
     } finally {
@@ -94,7 +102,7 @@ export function AuthPage() {
     } catch (error: any) {
       toast({
         title: 'Registration failed',
-        description: error.response?.data?.detail || 'Something went wrong. Please try again.',
+        description: authErrorMessage(error, 'Something went wrong. Please try again.'),
         variant: 'destructive',
       })
     } finally {

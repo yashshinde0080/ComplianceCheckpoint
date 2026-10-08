@@ -42,7 +42,7 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
       if (user) {
         routerLogger.nav(location.pathname, 'accessed private route')
       } else {
-        routerLogger.nav('/app/login', 'redirecting (not authenticated)')
+        routerLogger.nav('/login', 'redirecting (not authenticated)')
       }
     }
   }, [location.pathname, user, isLoading])
@@ -52,7 +52,7 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (!user) {
-    return <Navigate to="/app/login" replace />
+    return <Navigate to="/login" replace />
   }
 
   return <Layout>{children}</Layout>
@@ -65,7 +65,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!isLoading) {
       if (user) {
-        routerLogger.nav('/app/dashboard', 'redirecting (already authenticated)')
+        routerLogger.nav('/dashboard', 'redirecting (already authenticated)')
       } else {
         routerLogger.nav(location.pathname, 'accessed public route')
       }
@@ -77,7 +77,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   }
 
 if (user) {
-        return <Navigate to="/app/dashboard" replace />;
+        return <Navigate to="/dashboard" replace />;
       }
 
   return <>{children}</>
@@ -88,7 +88,7 @@ export function AppRoutes() {
     <Routes>
       {/* Public Routes */}
       <Route
-        path="/app/login"
+        path="/login"
         element={
           <PublicRoute>
             <AuthPage />
@@ -96,7 +96,7 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/app/register"
+        path="/register"
         element={
           <PublicRoute>
             <AuthPage />
@@ -106,7 +106,7 @@ export function AppRoutes() {
 
       {/* Private Routes */}
       <Route
-        path="/app/dashboard"
+        path="/dashboard"
         element={
           <PrivateRoute>
             <DashboardPage />
@@ -114,7 +114,7 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/app/account"
+        path="/account"
         element={
           <PrivateRoute>
             <AccountPage />
@@ -122,7 +122,7 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/app/controls"
+        path="/controls"
         element={
           <PrivateRoute>
             <ControlsPage />
@@ -130,7 +130,7 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/app/controls/:id"
+        path="/controls/:id"
         element={
           <PrivateRoute>
             <ControlDetailPage />
@@ -138,7 +138,7 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/app/policies"
+        path="/policies"
         element={
           <PrivateRoute>
             <PoliciesPage />
@@ -146,7 +146,7 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/app/policies/:id"
+        path="/policies/:id"
         element={
           <PrivateRoute>
             <PolicyDetailPage />
@@ -154,7 +154,7 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/app/evidence"
+        path="/evidence"
         element={
           <PrivateRoute>
             <EvidencePage />
@@ -162,7 +162,7 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/app/tasks"
+        path="/tasks"
         element={
           <PrivateRoute>
             <TasksPage />
@@ -170,7 +170,7 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/app/audit"
+        path="/audit"
         element={
           <PrivateRoute>
             <AuditPage />
@@ -178,7 +178,7 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/app/settings"
+        path="/settings"
         element={
           <PrivateRoute>
             <SettingsPage />
@@ -186,14 +186,14 @@ export function AppRoutes() {
         }
       />
 
-      {/* Redirect root to landing_page service */}
+      {/* Root: go to the dashboard, which redirects to /login when signed out */}
       <Route
         path="/"
-        element={<Navigate to="/" replace />}
+        element={<Navigate to="/dashboard" replace />}
       />
 
       {/* 404 - redirect to app root */}
-      <Route path="*" element={<Navigate to="/app/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   )
 }

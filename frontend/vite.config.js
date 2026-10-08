@@ -8,7 +8,8 @@ export default defineConfig({
             '@': path.resolve(__dirname, './src'),
         },
     },
-    base: process.env.NODE_ENV === 'production' ? '/app/' : '/',
+    // Served from the domain root of the frontend's own Vercel project.
+    base: '/',
     server: {
         port: 5173,
         proxy: {
