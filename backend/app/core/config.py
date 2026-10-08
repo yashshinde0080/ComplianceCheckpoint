@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     
     ENVIRONMENT: str = "development"
 
+    # Optional path for file logging. Disabled by default because the
+    # serverless filesystem is read-only.
+    LOG_FILE: str = ""
+
     # REMOVED: All AWS settings - not needed
 
     class Config:

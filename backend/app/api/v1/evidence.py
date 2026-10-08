@@ -12,11 +12,13 @@ from app.db.models.user import User
 from app.db.models.evidence import Evidence
 from app.schemas.evidence import EvidenceCreate, EvidenceRead, EvidenceUpdate
 from app.core.dependencies import get_current_active_user, require_roles
+from app.core.storage import writable_dir
 
 router = APIRouter()
 
-UPLOAD_DIR = "uploads/evidence"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+# /tmp on serverless, ./uploads/evidence locally. Created without crashing on a
+# read-only deployment filesystem (see app.core.storage).
+UPLOAD_DIR = writable_dir("UPLOAD_DIR", "uploads/evidence")
 
 
 @router.get("", response_model=List[EvidenceRead])

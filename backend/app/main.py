@@ -15,8 +15,10 @@ from app.api.v1.evidence import router as evidence_router
 from app.api.v1.tasks import router as tasks_router
 from app.api.v1.audits import router as audits_router
 
-# Setup logging
-setup_logging(level="INFO", log_file="app.log")
+# Setup logging. File logging is opt-in (LOG_FILE): the serverless
+# filesystem is read-only, so opening "app.log" at import time raised
+# OSError and broke every request.
+setup_logging(level="INFO", log_file=settings.LOG_FILE or None)
 logger = get_logger("main")
 
 
@@ -98,7 +100,12 @@ logger.info("📋 Registered API routes:", extra={"routes": [
 @app.get("/")
 async def root():
     logger.debug("Root endpoint accessed")
-    return {"message": "ComplianceCheckpoint API", "version": "1.0.0"}
+    return {
+        "status": "ok",
+        "service": "ComplianceCheckpoint API",
+        "message": "ComplianceCheckpoint API",
+        "version": "1.0.0",
+    }
 
 
 @app.get("/health")

@@ -477,7 +477,9 @@ S3_BUCKET=compliance-evidence
 
 **Frontend** (`frontend/.env`):
 ```bash
-VITE_API_URL=http://localhost:8000
+# Leave empty when the dev proxy / same-origin rewrite serves /api.
+# Set to the deployed backend URL only for separate frontend/backend projects.
+VITE_BACKEND_URL=
 ```
 
 #### 3. Start Local Services
@@ -521,7 +523,7 @@ Navigate to `http://localhost:5173`
 1. Connect GitHub repo
 2. Build command: `npm run build`
 3. Output directory: `dist`
-4. Environment variable: `VITE_API_URL` (production backend URL)
+4. Environment variable: `VITE_BACKEND_URL` (production backend URL; leave empty if the backend is served from the same origin)
 
 ### Database Migrations
 ```bash

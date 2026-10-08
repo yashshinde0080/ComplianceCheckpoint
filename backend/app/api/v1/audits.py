@@ -19,11 +19,13 @@ from app.db.models.evidence import Evidence
 from app.db.models.task import Task
 from app.schemas.audit_export import AuditExportCreate, AuditExportRead
 from app.core.dependencies import get_current_active_user, require_roles
+from app.core.storage import writable_dir
 
 router = APIRouter()
 
-EXPORT_DIR = "exports"
-os.makedirs(EXPORT_DIR, exist_ok=True)
+# /tmp on serverless, ./exports locally. Created without crashing on a
+# read-only deployment filesystem (see app.core.storage).
+EXPORT_DIR = writable_dir("EXPORT_DIR", "exports")
 
 
 @router.get("", response_model=List[AuditExportRead])
